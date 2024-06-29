@@ -41,3 +41,27 @@ unused flags are removed
 ```
 
 gitで差分を見つつ、適宜PRなど立ててください
+
+## ディレクトリ構造
+
+```
+unleash-checker-ai/
+├── cmd/
+│   └── unleash-checker-ai/
+│       └── main.go
+├── internal/
+│   ├── unleash/
+│   │   └── client.go
+│   ├── finder/
+│   │   └── finder.go
+│   ├── modifier/
+│   │   └── modifier.go
+│   └── config/
+│       └── config.go
+├── pkg/
+│   └── openai/
+│       └── client.go
+├── go.mod
+├── go.sum
+└── README.md
+```
