@@ -1,32 +1,82 @@
 package unleash
 
 import (
-	"github.com/Unleash/unleash-client-go/v4"
+	"encoding/json"
+	"fmt"
+	"net/http"
+	"time"
 )
 
-type Client struct {
-	client *unleash.Client
+type UnleashClient struct {
+	BaseURL  string
+	APIToken string
 }
 
-func NewClient(url, apiToken string) (*Client, error) {
-	client, err := unleash.NewClient(
-		unleash.WithUrl(url),
-		unleash.WithCustomHeaders(map[string][]string{"Authorization": {apiToken}}), // 修正箇所
-		unleash.WithAppName("unleash-checker-ai"),
-	)
+type FeatureFlag struct {
+	Name      string    `json:"name"`
+	Type      string    `json:"type"`
+	CreatedAt time.Time `json:"createdAt"`
+}
+
+type FeatureFlagsResponse struct {
+	Features []FeatureFlag `json:"features"`
+}
+
+func NewUnleashClient(baseURL, apiToken string) *UnleashClient {
+	return &UnleashClient{
+		BaseURL:  baseURL,
+		APIToken: apiToken,
+	}
+}
+
+func (c *UnleashClient) GetStaleFlags() ([]string, error) {
+	url := fmt.Sprintf("%s/api/admin/features", c.BaseURL)
+
+	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		return nil, err
 	}
 
-	return &Client{client: client}, nil
+	req.Header.Set("Authorization", c.APIToken)
+
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	var featureFlagsResp FeatureFlagsResponse
+	if err := json.NewDecoder(resp.Body).Decode(&featureFlagsResp); err != nil {
+		return nil, err
+	}
+
+	return getStaleFlags(featureFlagsResp.Features), nil
 }
 
-func (c *Client) GetUnusedFlags() ([]string, error) {
-	// この部分は Unleash API の実際の仕様に合わせて実装する必要があります
-	// ここでは、ダミーの実装を返しています
-	return []string{"flag_1", "flag_2"}, nil
+func getStaleFlags(flags []FeatureFlag) []string {
+	var staleFlags []string
+	now := time.Now()
+
+	for _, flag := range flags {
+		lifetime := getExpectedLifetime(flag.Type)
+		if now.Sub(flag.CreatedAt) > lifetime {
+			staleFlags = append(staleFlags, flag.Name)
+		}
+	}
+
+	return staleFlags
 }
 
-func (c *Client) Close() error {
-	return c.client.Close()
+func getExpectedLifetime(flagType string) time.Duration {
+	switch flagType {
+	case "release", "experiment":
+		return 40 * 24 * time.Hour // 40 days
+	case "operational":
+		return 7 * 24 * time.Hour // 7 days
+	case "killSwitch", "permission":
+		return 365 * 24 * time.Hour // 1 year (as these are expected to be permanent)
+	default:
+		return 30 * 24 * time.Hour // Default to 30 days
+	}
 }
