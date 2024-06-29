@@ -30,7 +30,7 @@ func NewUnleashClient(baseURL, apiToken string) *UnleashClient {
 }
 
 func (c *UnleashClient) GetStaleFlags() ([]string, error) {
-	url := fmt.Sprintf("%s/api/admin/features", c.BaseURL)
+	url := fmt.Sprintf("%s/admin/features", c.BaseURL)
 
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {

@@ -22,18 +22,12 @@ func main() {
         os.Exit(1)
     }
 
-    unleashClient, err := unleash.NewClient(cfg.UnleashAPIEndpoint, cfg.UnleashAPIToken)
-    if err != nil {
-        fmt.Printf("Error initializing Unleash client: %v\n", err)
-        os.Exit(1)
-    }
-    defer unleashClient.Close()
-
-    unusedFlags, err := unleashClient.GetUnusedFlags()
-    if err != nil {
-        fmt.Printf("Error getting unused flags: %v\n", err)
-        os.Exit(1)
-    }
+    client := unleash.NewUnleashClient(cfg.UnleashAPIEndpoint, cfg.UnleashAPIToken)
+	unusedFlags, err := client.GetStaleFlags()
+	if err != nil {
+		fmt.Printf("Error getting stale flags: %v\n", err)
+		return
+	}
 
     fmt.Println("Unused flags:")
     for _, flag := range unusedFlags {
