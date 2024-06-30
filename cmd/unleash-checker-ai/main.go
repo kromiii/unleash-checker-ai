@@ -41,6 +41,11 @@ func main() {
 		os.Exit(1)
 	}
 
+	if len(affectedFiles) == 0 {
+		fmt.Println("No files are affected")
+		return
+	}
+
 	fmt.Println("These flags are used in:")
 	for _, file := range affectedFiles {
 		fmt.Printf(" - %s\n", file)
