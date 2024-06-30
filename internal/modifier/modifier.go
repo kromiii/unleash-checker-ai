@@ -1,7 +1,7 @@
 package modifier
 
 import (
-	"io/ioutil"
+	"os"
 
 	"github.com/kromiii/unleash-checker-ai/pkg/openai"
 )
@@ -17,7 +17,7 @@ func NewModifier(apiKey string) *Modifier {
 }
 
 func (m *Modifier) ModifyFile(filePath string, unusedFlags []string) error {
-	content, err := ioutil.ReadFile(filePath)
+	content, err := os.ReadFile(filePath)
 	if err != nil {
 		return err
 	}
@@ -27,5 +27,5 @@ func (m *Modifier) ModifyFile(filePath string, unusedFlags []string) error {
 		return err
 	}
 
-	return ioutil.WriteFile(filePath, []byte(modifiedContent), 0644)
+	return os.WriteFile(filePath, []byte(modifiedContent), 0644)
 }

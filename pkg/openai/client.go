@@ -31,7 +31,11 @@ func (c *Client) ModifyCode(content string, unusedFlags []string) (string, error
 	messages := []ChatCompletionMessage{
 		{
 			Role:    ChatMessageRoleSystem,
-			Content: "You are a code modification assistant. Remove the specified unused flags from the given code.",
+			Content: `
+			You are a code modification assistant. Remove the specified unused flags from the given code.
+			These flags are assumed to remain enabled continuously and operate stably.
+			You should only output the modified code.
+			`,
 		},
 		{
 			Role:    ChatMessageRoleUser,
@@ -40,7 +44,7 @@ func (c *Client) ModifyCode(content string, unusedFlags []string) (string, error
 	}
 
 	resp, err := c.CreateChatCompletion(ctx, ChatCompletionRequest{
-		Model:    GPT3Dot5Turbo,
+		Model:    GPT4Turbo,
 		Messages: messages,
 	})
 	if err != nil {
@@ -101,7 +105,7 @@ type ChatCompletionResponse struct {
 }
 
 const (
-	GPT3Dot5Turbo         = "gpt-3.5-turbo"
+	GPT4Turbo         = "gpt-4-turbo"
 	ChatMessageRoleUser   = "user"
 	ChatMessageRoleSystem = "system"
 )

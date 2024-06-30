@@ -34,8 +34,6 @@ func main() {
 		fmt.Printf(" - %s\n", flag)
 	}
 
-	os.Exit(1)
-
 	targetFolder := os.Args[1]
 	affectedFiles, err := finder.FindAffectedFiles(targetFolder, unusedFlags)
 	if err != nil {
