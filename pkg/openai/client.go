@@ -33,9 +33,9 @@ func (c *Client) ModifyCode(content string, unusedFlags []string) (string, error
 			Role:    ChatMessageRoleSystem,
 			Content: `
 			You are a code modification assistant. Remove the specified unused flags from the given code.
-			These flags remain enabled for a long time and operate stably, so we don't need to refer to the flag status. 
-			You should only output the modified code because we will overwrite the original file with the modified code.
-			Please provide the response in plain text without using any markdown or code blocks.
+			These flags remain enabled for a long time and operate stably, so we don't need to refer to the flag status.
+			For the parts referencing the flag, please continue with the processing that occurs when the flag is enabled.
+			You should only output the modified code without using any markdown or code blocks because we will overwrite the original file with the modified code.
 			`,
 		},
 		{
@@ -45,7 +45,7 @@ func (c *Client) ModifyCode(content string, unusedFlags []string) (string, error
 	}
 
 	resp, err := c.CreateChatCompletion(ctx, ChatCompletionRequest{
-		Model:    GPT4Turbo,
+		Model:    Model,
 		Messages: messages,
 	})
 	if err != nil {
@@ -106,7 +106,7 @@ type ChatCompletionResponse struct {
 }
 
 const (
-	GPT4Turbo         = "gpt-4-turbo"
+	Model         = "gpt-4o"
 	ChatMessageRoleUser   = "user"
 	ChatMessageRoleSystem = "system"
 )
