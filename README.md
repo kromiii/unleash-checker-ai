@@ -12,6 +12,12 @@ export UNLEASH_API_TOKEN=
 export OPENAI_API_KEY=
 ```
 
+build
+
+```
+go build ./cmd/unleash-checker-ai
+```
+
 対象とするフォルダを指定
 
 ```
