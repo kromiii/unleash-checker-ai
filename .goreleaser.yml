@@ -1,0 +1,21 @@
+project_name: unleash-checker-ai
+builds:
+  - main: ./cmd/unleash-checker-ai
+    goos:
+      - linux
+      - darwin
+      - windows
+    goarch:
+      - amd64
+      - arm64
+archives:
+  - format: tar.gz
+    files:
+      - LICENSE
+      - README.md
+release:
+  github:
+    owner: kromiii
+    name: unleash-checker-ai
+changelog:
+  use: git
