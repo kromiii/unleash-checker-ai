@@ -29,7 +29,7 @@ func main() {
 		return
 	}
 
-	fmt.Println("Unused flags:")
+	fmt.Println("Stale or potentially stale flags:")
 	for _, flag := range unusedFlags {
 		fmt.Printf(" - %s\n", flag)
 	}
@@ -51,6 +51,8 @@ func main() {
 		fmt.Printf(" - %s\n", file)
 	}
 
+	fmt.Println("Removing unused flags by LLM...")
+
 	modifier := modifier.NewModifier(cfg.OpenAIAPIKey)
 	for _, file := range affectedFiles {
 		err := modifier.ModifyFile(file, unusedFlags)
@@ -60,5 +62,5 @@ func main() {
 		}
 	}
 
-	fmt.Println("Unused flags are removed")
+	fmt.Println("Done!")
 }
