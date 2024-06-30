@@ -10,27 +10,31 @@ import (
 type UnleashClient struct {
 	BaseURL  string
 	APIToken string
+	ProjectID string
 }
 
 type FeatureFlag struct {
 	Name      string    `json:"name"`
 	Type      string    `json:"type"`
 	CreatedAt time.Time `json:"createdAt"`
+	Enabled   bool      `json:"enabled"`
+	Stale     bool      `json:"stale"`
 }
 
 type FeatureFlagsResponse struct {
 	Features []FeatureFlag `json:"features"`
 }
 
-func NewUnleashClient(baseURL, apiToken string) *UnleashClient {
+func NewUnleashClient(baseURL, apiToken string, projectID string) *UnleashClient {
 	return &UnleashClient{
 		BaseURL:  baseURL,
 		APIToken: apiToken,
+		ProjectID: projectID,
 	}
 }
 
-func (c *UnleashClient) GetStaleFlags() ([]string, error) {
-	url := fmt.Sprintf("%s/admin/features", c.BaseURL)
+func (c *UnleashClient) GetUnusedAndStaleFlags() ([]string, error) {
+	url := fmt.Sprintf("%s/admin/projects/%s/features", c.BaseURL, c.ProjectID)
 
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
@@ -51,21 +55,23 @@ func (c *UnleashClient) GetStaleFlags() ([]string, error) {
 		return nil, err
 	}
 
-	return getStaleFlags(featureFlagsResp.Features), nil
+	return getUnusedAndStaleFlags(featureFlagsResp.Features), nil
 }
 
-func getStaleFlags(flags []FeatureFlag) []string {
-	var staleFlags []string
+func getUnusedAndStaleFlags(flags []FeatureFlag) []string {
+	var unusedAndStaleFlags []string
 	now := time.Now()
 
 	for _, flag := range flags {
 		lifetime := getExpectedLifetime(flag.Type)
-		if now.Sub(flag.CreatedAt) > lifetime {
-			staleFlags = append(staleFlags, flag.Name)
+		isStale := flag.Stale || now.Sub(flag.CreatedAt) > lifetime
+
+		if isStale {
+			unusedAndStaleFlags = append(unusedAndStaleFlags, flag.Name)
 		}
 	}
 
-	return staleFlags
+	return unusedAndStaleFlags
 }
 
 func getExpectedLifetime(flagType string) time.Duration {
