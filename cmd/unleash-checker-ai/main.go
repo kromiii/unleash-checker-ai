@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"os"
+	"flag"
 
 	"github.com/kromiii/unleash-checker-ai/internal/config"
 	"github.com/kromiii/unleash-checker-ai/internal/finder"
@@ -22,8 +23,12 @@ func main() {
 		os.Exit(1)
 	}
 
-	client := unleash.NewUnleashClient(cfg.UnleashAPIEndpoint, cfg.UnleashAPIToken, cfg.ProjectID)
-	unusedFlags, err := client.GetUnusedAndStaleFlags()
+	onlyStaleFlag := flag.Bool("only-stale", false, "Ignore potentially stale flags")
+	flag.Parse()
+
+	client := unleash.NewClient(cfg.UnleashAPIEndpoint, cfg.UnleashAPIToken, cfg.ProjectID)
+	onlyStaleFlags := *onlyStaleFlag
+	unusedFlags, err := client.GetStaleFlags(onlyStaleFlags)
 	if err != nil {
 		fmt.Printf("Error getting stale flags: %v\n", err)
 		return

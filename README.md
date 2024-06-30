@@ -2,6 +2,10 @@
 
 unleash api を参照して使われていないflagを発見、コードから該当する部分を抽出し、LLMによるコードの修正を行う script です
 
+flag の lifetime から potentially stale な flag も対象とし、コードの修正を行います
+
+ref: https://docs.getunleash.io/reference/technical-debt
+
 コードの修正に openai api を使用しているため課金が発生します
 
 ## 使い方
@@ -43,6 +47,10 @@ Done!
 ```
 
 gitで差分を見つつ、適宜PRなど立ててください
+
+## Option
+
+`--only-stale` オプションを指定すると、potentially stale flags は無視されます
 
 ## ディレクトリ構造
 

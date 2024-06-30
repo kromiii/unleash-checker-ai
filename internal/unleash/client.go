@@ -25,7 +25,7 @@ type FeatureFlagsResponse struct {
 	Features []FeatureFlag `json:"features"`
 }
 
-func NewUnleashClient(baseURL, apiToken string, projectID string) *UnleashClient {
+func NewClient(baseURL, apiToken string, projectID string) *UnleashClient {
 	return &UnleashClient{
 		BaseURL:  baseURL,
 		APIToken: apiToken,
@@ -33,7 +33,7 @@ func NewUnleashClient(baseURL, apiToken string, projectID string) *UnleashClient
 	}
 }
 
-func (c *UnleashClient) GetUnusedAndStaleFlags() ([]string, error) {
+func (c *UnleashClient) GetStaleFlags(onlyStaleFlags bool) ([]string, error) {
 	url := fmt.Sprintf("%s/admin/projects/%s/features", c.BaseURL, c.ProjectID)
 
 	req, err := http.NewRequest("GET", url, nil)
@@ -55,23 +55,28 @@ func (c *UnleashClient) GetUnusedAndStaleFlags() ([]string, error) {
 		return nil, err
 	}
 
-	return getUnusedAndStaleFlags(featureFlagsResp.Features), nil
+	return getStaleFlags(featureFlagsResp.Features, onlyStaleFlags), nil
 }
 
-func getUnusedAndStaleFlags(flags []FeatureFlag) []string {
-	var unusedAndStaleFlags []string
+func getStaleFlags(flags []FeatureFlag, onlyStaleFlags bool) []string {
+	var staleFlags []string
 	now := time.Now()
 
 	for _, flag := range flags {
 		lifetime := getExpectedLifetime(flag.Type)
-		isStale := flag.Stale || now.Sub(flag.CreatedAt) > lifetime
-
-		if isStale {
-			unusedAndStaleFlags = append(unusedAndStaleFlags, flag.Name)
+		if onlyStaleFlags {
+			if flag.Stale{
+				staleFlags = append(staleFlags, flag.Name)
+			}
+		} else {
+			isStale := flag.Stale || now.Sub(flag.CreatedAt) > lifetime
+			if isStale {
+				staleFlags = append(staleFlags, flag.Name)
+			}
 		}
 	}
 
-	return unusedAndStaleFlags
+	return staleFlags
 }
 
 func getExpectedLifetime(flagType string) time.Duration {
