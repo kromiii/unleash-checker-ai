@@ -33,13 +33,14 @@ func (c *Client) ModifyCode(content string, unusedFlags []string) (string, error
 			Role:    ChatMessageRoleSystem,
 			Content: `
 			You are a code modification assistant. Remove the specified unused flags from the given code.
-			These flags are assumed to remain enabled continuously and operate stably.
-			You should only output the modified code.
+			These flags remain enabled for a long time and operate stably, so we don't need to refer to the flag status. 
+			You should only output the modified code because we will overwrite the original file with the modified code.
+			Please provide the response in plain text without using any markdown or code blocks.
 			`,
 		},
 		{
 			Role:    ChatMessageRoleUser,
-			Content: fmt.Sprintf("Remove the following unused flags from this code:\n%s\n\nUnused flags: %s", content, strings.Join(unusedFlags, ", ")),
+			Content: fmt.Sprintf("Modify the following code:\n%s\n\nStale flags are: %s", content, strings.Join(unusedFlags, ", ")),
 		},
 	}
 
