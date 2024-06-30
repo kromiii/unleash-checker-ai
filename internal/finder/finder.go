@@ -16,13 +16,34 @@ func FindAffectedFiles(root string, flags []string) ([]string, error) {
         if info.IsDir() {
             return nil
         }
-        if strings.HasSuffix(path, ".go") || strings.HasSuffix(path, ".py") {
-            // ファイルの内容を読み込み、フラグの使用を確認
-            // この実装は簡略化しています
+        if isFlagUsedInFile(path, flags) {
             affectedFiles = append(affectedFiles, path)
         }
         return nil
     })
 
     return affectedFiles, err
+}
+
+func isFlagUsedInFile(path string, flags []string) bool {
+    file, err := os.Open(path)
+    if err != nil {
+        return false
+    }
+    defer file.Close()
+
+    buf := make([]byte, 1024)
+    _, err = file.Read(buf)
+    if err != nil {
+        return false
+    }
+
+    content := string(buf)
+    for _, flag := range flags {
+        if strings.Contains(content, flag) {
+            return true
+        }
+    }
+
+    return false
 }
