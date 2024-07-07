@@ -26,11 +26,11 @@ func NewClient(apiKey string) *Client {
 	}
 }
 
-func (c *Client) ModifyCode(content string, unusedFlags []string) (string, error) {
+func (c *Client) ModifyCode(content string, flag string) (string, error) {
 	ctx := context.Background()
 	messages := []ChatCompletionMessage{
 		{
-			Role:    ChatMessageRoleSystem,
+			Role: ChatMessageRoleSystem,
 			Content: `
 			You are a code modification assistant. Remove the specified unused flags from the given code.
 			These flags remain enabled for a long time and operate stably, so we don't need to refer to the flag status.
@@ -40,7 +40,7 @@ func (c *Client) ModifyCode(content string, unusedFlags []string) (string, error
 		},
 		{
 			Role:    ChatMessageRoleUser,
-			Content: fmt.Sprintf("Modify the following code:\n%s\n\nStale flags are: %s", content, strings.Join(unusedFlags, ", ")),
+			Content: fmt.Sprintf("Modify the following code:\n%s\n\nStale flag is: %s", content, flag),
 		},
 	}
 
@@ -106,7 +106,7 @@ type ChatCompletionResponse struct {
 }
 
 const (
-	Model         = "gpt-4o"
+	Model                 = "gpt-4o"
 	ChatMessageRoleUser   = "user"
 	ChatMessageRoleSystem = "system"
 )

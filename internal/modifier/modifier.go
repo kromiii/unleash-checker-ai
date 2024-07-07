@@ -18,32 +18,39 @@ func NewModifier(apiKey string) *Modifier {
 	}
 }
 
-func (m *Modifier) ModifyFile(filePath string, unusedFlags []string) error {
+func (m *Modifier) ModifyFile(filePath string, unusedFlags []string) ([]string, error) {
 	content, err := os.ReadFile(filePath)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	modifiedContent := string(content)
 	lines := strings.Split(modifiedContent, "\n")
+	removedFlags := []string{}
 	for i, line := range lines {
-		if containsAny(line, unusedFlags) {
-			modifiedLine, err := m.openaiClient.ModifyCode(line, unusedFlags)
+		if found, matchedFlag := findMatchedFlag(line, unusedFlags); found {
+			modifiedLine, err := m.openaiClient.ModifyCode(line, matchedFlag)
 			if err != nil {
-				return err
+				return nil, err
 			}
 
 			lines[i] = modifiedLine
+			removedFlags = append(removedFlags, matchedFlag)
 		}
 	}
 
 	modifiedContent = strings.Join(lines, "\n")
 
-	return os.WriteFile(filePath, []byte(modifiedContent), 0644)
+	err = os.WriteFile(filePath, []byte(modifiedContent), 0644)
+	return removedFlags, err
 }
 
-func containsAny(s string, substrs []string) bool {
-	pattern := strings.Join(substrs, "|")
-	matched, _ := regexp.MatchString(pattern, s)
-	return matched
+func findMatchedFlag(s string, flags []string) (bool, string) {
+	pattern := strings.Join(flags, "|")
+	re, err := regexp.Compile(pattern)
+	if err != nil {
+			return false, ""
+	}
+	matched := re.FindString(s)
+	return matched != "", matched
 }
