@@ -7,12 +7,13 @@ func PrintSummary(staleFlags []string, removedFlags []string) {
 		fmt.Println("No stale flags found")
 		return
 	}
-	fmt.Printf("Found %d stale flags\n", len(staleFlags))
+	fmt.Printf("Unleash Checker found %d stale flags\n", len(staleFlags))
 	if len(removedFlags) > 0 {
 		fmt.Println("The following flags were removed from files due to being stale:")
 		for _, flag := range removedFlags {
 			fmt.Printf(" - %s\n", flag)
 		}
+		fmt.Println("")
 	}
 	unfoundFlags := difference(staleFlags, removedFlags)
 	if len(unfoundFlags) > 0 {	
@@ -20,6 +21,7 @@ func PrintSummary(staleFlags []string, removedFlags []string) {
 		for _, flag := range unfoundFlags {
 			fmt.Printf(" - %s\n", flag)
 		}
+		fmt.Println("")
 	}
 	fmt.Println("Please review the changes and commit them to your repository.\nIf you still want to use these flags, consider changing the flag type:\nhttps://docs.getunleash.io/reference/technical-debt")
 }
