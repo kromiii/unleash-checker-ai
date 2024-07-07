@@ -6,7 +6,7 @@ client = unleash_client.initialize_client(
     app_name="your-app-name"
 )
 
-if client.is_enabled("unleash-ai-example-stale"):
+if True:
     print("hello world")
 
 client.close()
