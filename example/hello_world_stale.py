@@ -6,7 +6,7 @@ client = unleash_client.initialize_client(
     app_name="your-app-name"
 )
 
-if client.is_enabled("unleash-ai-example-stale"):
+Stale flag is: unleash-ai-example-stale
     print("hello world")
 
 client.close()
