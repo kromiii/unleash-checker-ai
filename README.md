@@ -10,15 +10,41 @@ ref: https://docs.getunleash.io/reference/technical-debt
 
 ## 使い方
 
-環境変数に以下の情報を設定
+Unleash Checker AI は GitHub Actions での利用を想定しています
+
+Actions Secret に以下の環境変数を設定してください
 
 ```
-export UNLEASH_API_ENDPOINT=http://localhost:4242/api
+export UNLEASH_API_ENDPOINT=http://example.com/api
 export UNLEASH_API_TOKEN=xxxxxxxxxxxxxxxxxxxxxxxx
 export UNLEASH_PROJECT_ID=default
 export OPENAI_API_KEY=sk-xxxxxxxxxxxxxxxxxxxxxxxx
-
 ```
+
+以下のような workflow を設定してください
+
+```yaml
+name: Unleash Checker
+on:
+  workflow_dispatch:
+    
+jobs:
+  unleash_checker:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: kromiii/unleash-checker-ai@v0.1.6
+        with:
+          unleash_api_endpoint: ${{ secrets.UNLEASH_API_ENDPOINT }}
+          unleash_api_token: ${{ secrets.UNLEASH_API_TOKEN }}
+          unleash_project_id: ${{ secrets.UNLEASH_PROJECT_ID }}
+          openai_api_key: ${{ secrets.OPENAI_API_KEY }}
+          target_path: 'app'
+```
+
+`target_path` には対象のフォルダを指定してください
+
+## ローカルでの実行
 
 package をビルド
 
@@ -32,46 +58,8 @@ go build ./cmd/unleash-checker-ai
 ./unleash-checker-ai example
 ```
 
-## 実行結果
-
-実行すると以下のような結果が出力されます
-
-```
-% ./unleash-checker-ai example     
-Stale or potentially stale flags:
- - unleash-ai-example-stale
-These flags are used in:
- - example/hello_world_stale.py
-Removing unused flags by LLM...
-Done!
-```
-
-gitで差分を見つつ、適宜PRなど立ててください
+実行後はgitで差分を見つつ、適宜PRなど立ててください
 
 ## Option
 
 `--only-stale` オプションを指定すると、potentially stale flags は無視されます
-
-## ディレクトリ構造
-
-```
-unleash-checker-ai/
-├── cmd/
-│   └── unleash-checker-ai/
-│       └── main.go
-├── internal/
-│   ├── unleash/
-│   │   └── client.go
-│   ├── finder/
-│   │   └── finder.go
-│   ├── modifier/
-│   │   └── modifier.go
-│   └── config/
-│       └── config.go
-├── pkg/
-│   └── openai/
-│       └── client.go
-├── go.mod
-├── go.sum
-└── README.md
-```
