@@ -2,9 +2,8 @@ name: Unleash Checker AI
 
 on:
   # schedule:
-  #   - cron: '0 0 * * *'  # 毎日 UTC 00:00 に実行
-  # workflow_dispatch:  # 手動実行も可能
-  push:
+  #   - cron: '0 0 * * *'
+  workflow_dispatch:  
 
 jobs:
   check-and-update:
@@ -12,11 +11,6 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
-
-      - name: Print runner info
-        run: |
-          echo "Runner OS: ${{ runner.os }}"
-          echo "Runner architecture: ${{ runner.arch }}"
 
       - name: Get latest release
         id: get_release
@@ -42,7 +36,6 @@ jobs:
           tar -xzf unleash-checker-ai.tar.gz
           rm unleash-checker-ai.tar.gz
           chmod +x unleash-checker-ai
-          ls -l
 
       - name: Run unleash-checker-ai
         id: unleash-checker
