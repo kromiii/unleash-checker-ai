@@ -14,6 +14,10 @@ inputs:
   openai_api_key:
     description: 'OpenAI API key'
     required: true
+  target_path:
+    description: 'Path to the directory you want to run unleash-checker-ai in'
+    required: false
+    default: '.'
 runs:
   using: 'composite'
   steps:
@@ -53,7 +57,7 @@ runs:
         UNLEASH_PROJECT_ID: ${{ inputs.unleash_project_id }}
         OPENAI_API_KEY: ${{ inputs.openai_api_key }}
       run: |
-        output=$(./unleash-checker-ai example)
+        output=$(./unleash-checker-ai ${{ inputs.target_path }})
         echo "checker_output<<EOF" >> $GITHUB_OUTPUT
         echo "$output" >> $GITHUB_OUTPUT
         echo "EOF" >> $GITHUB_OUTPUT
