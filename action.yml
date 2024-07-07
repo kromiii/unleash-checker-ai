@@ -1,20 +1,63 @@
 name: 'Unleash Checker AI'
-description: 'Detects and removes unused feature flags using Unleash API and OpenAI.'
+description: 'Checks and updates stale Unleash flags'
+author: 'Hiroyuki Kuromiya'
 inputs:
-  repository:
-    description: 'The repository to clean.'
+  unleash_api_endpoint:
+    description: 'Unleash API endpoint'
     required: true
-    default: ${{ github.repository }}
-ouputs:
-  pull_request:
-    description: 'The URL of the pull request that was created.'
-    value: ${{ steps.create_pull_request.outputs.pull_request }}
+  unleash_api_token:
+    description: 'Unleash API token'
+    required: true
+  unleash_project_id:
+    description: 'Unleash project ID'
+    required: true
+  openai_api_key:
+    description: 'OpenAI API key'
+    required: true
 runs:
-  using: 'go'
-  main: 'cmd/unleash-checker-ai'
-permissions:
-  contents: 'write'
-  pull-requests: 'write'
+  using: 'composite'
+  steps:
+    - name: Get latest release
+      id: get_release
+      shell: bash
+      run: |
+        OS=$(echo $RUNNER_OS | tr '[:upper:]' '[:lower:]')
+        ARCH=$(echo $RUNNER_ARCH | tr '[:upper:]' '[:lower:]')
+        if [ "$ARCH" == "x64" ]; then
+          ARCH="amd64"
+        fi
+        RELEASE_INFO=$(curl -s https://api.github.com/repos/kromiii/unleash-checker-ai/releases/latest)
+        ASSET_URL=$(echo "$RELEASE_INFO" | jq -r ".assets[] | select(.name | contains(\"$OS\") and contains(\"$ARCH\")) | .browser_download_url")
+        if [ -z "$ASSET_URL" ]; then
+          echo "Error: No matching asset found for $OS-$ARCH"
+          exit 1
+        fi
+        echo "asset_url=$ASSET_URL" >> $GITHUB_OUTPUT
+        echo "version=$(echo "$RELEASE_INFO" | jq -r .tag_name)" >> $GITHUB_OUTPUT
+
+    - name: Download unleash-checker-ai
+      shell: bash
+      run: |
+        cd $GITHUB_WORKSPACE
+        wget ${{ steps.get_release.outputs.asset_url }} -O unleash-checker-ai.tar.gz
+        tar -xzf unleash-checker-ai.tar.gz
+        rm unleash-checker-ai.tar.gz
+        chmod +x unleash-checker-ai
+
+    - name: Run unleash-checker-ai
+      id: unleash-checker
+      shell: bash
+      env:
+        UNLEASH_API_ENDPOINT: ${{ inputs.unleash_api_endpoint }}
+        UNLEASH_API_TOKEN: ${{ inputs.unleash_api_token }}
+        UNLEASH_PROJECT_ID: ${{ inputs.unleash_project_id }}
+        OPENAI_API_KEY: ${{ inputs.openai_api_key }}
+      run: |
+        output=$(./unleash-checker-ai example)
+        echo "checker_output<<EOF" >> $GITHUB_OUTPUT
+        echo "$output" >> $GITHUB_OUTPUT
+        echo "EOF" >> $GITHUB_OUTPUT
+
 branding:
-  icon: 'activity'
+  icon: 'check-circle'
   color: 'green'
