@@ -43,10 +43,14 @@ runs:
       shell: bash
       run: |
         cd $GITHUB_WORKSPACE
+        mkdir -p unleash-checker-ai-tmp
+        cd unleash-checker-ai-tmp
         wget ${{ steps.get_release.outputs.asset_url }} -O unleash-checker-ai.tar.gz
         tar -xzf unleash-checker-ai.tar.gz
-        rm unleash-checker-ai.tar.gz
         chmod +x unleash-checker-ai
+        mv unleash-checker-ai ..
+        cd ..
+        rm -rf unleash-checker-ai-tmp
 
     - name: Run unleash-checker-ai
       id: unleash-checker
@@ -61,6 +65,7 @@ runs:
         echo "checker_output<<EOF" >> $GITHUB_OUTPUT
         echo "$output" >> $GITHUB_OUTPUT
         echo "EOF" >> $GITHUB_OUTPUT
+        rm unleash-checker-ai
     
     - name: Create Pull Request
       uses: peter-evans/create-pull-request@v3
