@@ -42,7 +42,9 @@ jobs:
           target_path: 'app'
 ```
 
-`target_path` には対象のフォルダを指定してください
+`target_path` でフォルダを絞って実行することができます
+
+https://github.com/kromiii/sample-app-for-unleash-checker/blob/main/.github/workflows/unleash-checker.yml
 
 ## ローカルでの実行
 
