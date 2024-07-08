@@ -46,6 +46,10 @@ jobs:
 
 https://github.com/kromiii/sample-app-for-unleash-checker/blob/main/.github/workflows/unleash-checker.yml
 
+生成されるPRのサンプルはこちら
+
+https://github.com/kromiii/sample-app-for-unleash-checker/pull/1
+
 ## ローカルでの実行
 
 package をビルド
