@@ -29,17 +29,15 @@ func (m *Modifier) ModifyFile(filePath string, unusedFlags []string) ([]string, 
 	removedFlags := []string{}
 	for i, line := range lines {
 		if found, matchedFlag := findMatchedFlag(line, unusedFlags); found {
-			modifiedLine, err := m.openaiClient.ModifyCode(line, matchedFlag)
-			if err != nil {
-				return nil, err
-			}
-
-			lines[i] = modifiedLine
+			lines[i] = "// This feature flag is stale and can be removed: " + matchedFlag + "\n" + line
 			removedFlags = append(removedFlags, matchedFlag)
 		}
 	}
 
-	modifiedContent = strings.Join(lines, "\n")
+	modifiedContent, err = m.openaiClient.ModifyCode(strings.Join(lines, "\n"), "")
+	if err != nil {
+		return nil, err
+	}
 
 	err = os.WriteFile(filePath, []byte(modifiedContent), 0644)
 	return removedFlags, err
