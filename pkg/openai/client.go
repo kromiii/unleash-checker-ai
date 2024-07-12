@@ -10,6 +10,7 @@ import (
 
 const (
 	defaultBaseURL = "https://api.openai.com/v1"
+	MAX_TOKENS     = 4096
 )
 
 type Client struct {
@@ -27,6 +28,11 @@ func NewClient(apiKey string) *Client {
 }
 
 func (c *Client) ModifyCode(content string, flag string) (string, error) {
+	tokens := estimateTokens(content)
+	if tokens > MAX_TOKENS {
+		return content, nil
+	}
+
 	ctx := context.Background()
 	messages := []ChatCompletionMessage{
 		{
@@ -110,3 +116,8 @@ const (
 	ChatMessageRoleUser   = "user"
 	ChatMessageRoleSystem = "system"
 )
+
+func estimateTokens(text string) int {
+	words := strings.Fields(text)
+	return int(float64(len(words)) * 1.3)
+}
