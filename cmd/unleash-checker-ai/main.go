@@ -41,5 +41,6 @@ func main() {
 		os.Exit(1)
 	}
 
-	report.PrintSummary(staleFlags, removedFlags)
+	summary := report.CreateSummary(staleFlags, removedFlags)
+	fmt.Println(summary)
 }
