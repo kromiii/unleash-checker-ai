@@ -48,7 +48,7 @@ https://github.com/kromiii/sample-app-for-unleash-checker/blob/main/.github/work
 
 生成されるPRのサンプルはこちら
 
-https://github.com/kromiii/sample-app-for-unleash-checker/pull/1
+https://github.com/kromiii/sample-app-for-unleash-checker/pull/2
 
 ## ローカルでの実行
 
