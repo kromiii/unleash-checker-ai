@@ -38,6 +38,10 @@ func (m *Modifier) ModifyFile(filePath string, unusedFlags []string) ([]string, 
 	if err != nil {
 		return nil, err
 	}
+	
+	if !strings.HasSuffix(modifiedContent, "\n") {
+		modifiedContent += "\n"
+	}
 
 	err = os.WriteFile(filePath, []byte(modifiedContent), 0644)
 	return removedFlags, err
