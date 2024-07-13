@@ -66,6 +66,11 @@ runs:
         echo "$output" >> $GITHUB_OUTPUT
         echo "EOF" >> $GITHUB_OUTPUT
         rm unleash-checker-ai
+        if echo "$output" | grep -q "Error"; then
+          echo "Error detected in unleash-checker-ai output"
+          echo "$output"
+          exit 1
+        fi
     
     - name: Create Pull Request
       uses: peter-evans/create-pull-request@v3
