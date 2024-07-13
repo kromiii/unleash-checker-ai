@@ -51,6 +51,7 @@ jobs:
           echo "EOF" >> $GITHUB_OUTPUT
           if echo "$output" | grep -q "Error"; then
             echo "Error detected in unleash-checker-ai output"
+            echo "$output"
             exit 1
           fi
 
