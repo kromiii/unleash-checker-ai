@@ -49,6 +49,10 @@ jobs:
           echo "checker_output<<EOF" >> $GITHUB_OUTPUT
           echo "$output" >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
+          if echo "$output" | grep -q "Error"; then
+            echo "Error detected in unleash-checker-ai output"
+            exit 1
+          fi
 
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v3
