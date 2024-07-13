@@ -1,12 +1,14 @@
 # unleash-checker-ai
 
-unleash api を参照して使われていないflagを発見、コードから該当する部分を抽出し、LLMによるコードの修正を行う script です
+unleash api を参照して使われていないflagを発見、コードから該当する部分を抽出し、LLMによるコードの修正を行うツールです
 
 flag の lifetime から potentially stale な flag も対象とし、コードの修正を行います
 
 ref: https://docs.getunleash.io/reference/technical-debt
 
 コードの修正に openai api を使用しているため課金が発生します
+
+トークンの長いファイルに対しては、LLMによる修正は行わず、コメントで flag の使用箇所を示すのみとなります
 
 ## 使い方
 
@@ -15,25 +17,25 @@ Unleash Checker AI は GitHub Actions での利用を想定しています
 Actions Secret に以下の環境変数を設定してください
 
 ```
-export UNLEASH_API_ENDPOINT=http://example.com/api
-export UNLEASH_API_TOKEN=xxxxxxxxxxxxxxxxxxxxxxxx
-export UNLEASH_PROJECT_ID=default
-export OPENAI_API_KEY=sk-xxxxxxxxxxxxxxxxxxxxxxxx
+UNLEASH_API_ENDPOINT: Unleash のエンドポイント (https://app.unleash-hosted.com/api)
+UNLEASH_API_TOKEN: Unleash の API トークン
+UNLEASH_PROJECT_ID: プロジェクトID ("default")
+OPENAI_API_KEY: OpenAI API キー
 ```
 
-以下のような workflow を設定してください
+スキャンしたいレポジトリで以下のようなワークフローを設定してください
 
 ```yaml
 name: Unleash Checker
 on:
-  workflow_dispatch:
-    
+  schedule:
+    - cron: '0 0 * * *'    
 jobs:
   unleash_checker:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - uses: kromiii/unleash-checker-ai@v0.1.7
+      - uses: kromiii/unleash-checker-ai@v1
         with:
           unleash_api_endpoint: ${{ secrets.UNLEASH_API_ENDPOINT }}
           unleash_api_token: ${{ secrets.UNLEASH_API_TOKEN }}
@@ -42,9 +44,7 @@ jobs:
           target_path: 'app'
 ```
 
-`target_path` でフォルダを絞って実行することができます
-
-https://github.com/kromiii/sample-app-for-unleash-checker/blob/main/.github/workflows/unleash-checker.yml
+`target_path` でフォルダを絞って実行することができます。デフォルトは全てのファイルが対象となりますが、サードパーティのライブラリなどを除外するために指定することをお勧めします。
 
 生成されるPRのサンプルはこちら
 
@@ -64,8 +64,8 @@ go build ./cmd/unleash-checker-ai
 ./unleash-checker-ai example
 ```
 
-実行後はgitで差分を見つつ、適宜PRなど立ててください
-
-## Option
-
 `--only-stale` オプションを指定すると、potentially stale flags は無視されます
+
+```
+./unleash-checker-ai example --only-stale
+```
