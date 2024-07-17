@@ -41,6 +41,7 @@ jobs:
           unleash_api_token: ${{ secrets.UNLEASH_API_TOKEN }}
           unleash_project_id: ${{ secrets.UNLEASH_PROJECT_ID }}
           openai_api_key: ${{ secrets.OPENAI_API_KEY }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
           target_path: 'app'
 ```
 
@@ -49,23 +50,3 @@ jobs:
 生成されるPRのサンプルはこちら
 
 https://github.com/kromiii/sample-app-for-unleash-checker/pull/2
-
-## ローカルでの実行
-
-package をビルド
-
-```
-go build ./cmd/unleash-checker-ai
-```
-
-対象のフォルダを指定して実行
-
-```
-./unleash-checker-ai example
-```
-
-`--only-stale` オプションを指定すると、potentially stale flags は無視されます
-
-```
-./unleash-checker-ai example --only-stale
-```

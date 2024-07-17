@@ -1,12 +1,14 @@
 package main
 
 import (
+	"context"
 	"flag"
 	"fmt"
 	"os"
 
 	"github.com/kromiii/unleash-checker-ai/internal/config"
 	"github.com/kromiii/unleash-checker-ai/internal/finder"
+	"github.com/kromiii/unleash-checker-ai/internal/github"
 	"github.com/kromiii/unleash-checker-ai/internal/report"
 	"github.com/kromiii/unleash-checker-ai/internal/unleash"
 )
@@ -42,5 +44,17 @@ func main() {
 	}
 
 	summary := report.CreateSummary(staleFlags, removedFlags)
-	fmt.Println(summary)
+
+	// Create GitHub client
+	githubClient := github.NewClient(cfg.GitHubToken, cfg.GitHubOwner, cfg.GitHubRepo)
+
+	// Create pull request
+	ctx := context.Background()
+	pr, err := githubClient.CreatePullRequest(ctx, "Update stale Unleash flags", summary, "unleash-checker-updates", "main")
+	if err != nil {
+		fmt.Printf("Error creating pull request: %v\n", err)
+		os.Exit(1)
+	}
+
+	fmt.Printf("Pull request created: %s\n", pr.GetHTMLURL())
 }
