@@ -35,7 +35,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - uses: kromiii/unleash-checker-ai@v0.1.10
+      - uses: kromiii/unleash-checker-ai@v0.1.11
         with:
           unleash_api_endpoint: ${{ secrets.UNLEASH_API_ENDPOINT }}
           unleash_api_token: ${{ secrets.UNLEASH_API_TOKEN }}
