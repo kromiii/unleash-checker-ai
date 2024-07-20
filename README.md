@@ -16,12 +16,10 @@ Unleash Checker AI は GitHub Actions での利用を想定しています
 
 Actions Secret に以下の環境変数を設定してください
 
-```
-UNLEASH_API_ENDPOINT: Unleash のエンドポイント (https://app.unleash-hosted.com/api)
-UNLEASH_API_TOKEN: Unleash の API トークン
-UNLEASH_PROJECT_ID: プロジェクトID ("default")
-OPENAI_API_KEY: OpenAI API キー
-```
+* UNLEASH_API_ENDPOINT: Unleash のエンドポイント (https://app.unleash-hosted.com/api)
+* UNLEASH_API_TOKEN: Unleash の API トークン
+* UNLEASH_PROJECT_ID: プロジェクトID ("default")
+* OPENAI_API_KEY: OpenAI API キー
 
 スキャンしたいレポジトリで以下のようなワークフローを設定してください
 
