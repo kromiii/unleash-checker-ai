@@ -35,7 +35,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - uses: kromiii/unleash-checker-ai@v2
+      - uses: kromiii/unleash-checker-ai@v0.1.10
         with:
           unleash_api_endpoint: ${{ secrets.UNLEASH_API_ENDPOINT }}
           unleash_api_token: ${{ secrets.UNLEASH_API_TOKEN }}
@@ -49,4 +49,4 @@ jobs:
 
 生成されるPRのサンプルはこちら
 
-https://github.com/kromiii/sample-app-for-unleash-checker/pull/2
+https://github.com/kromiii/unleash-checker-ai/pull/13
