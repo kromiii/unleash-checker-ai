@@ -37,7 +37,7 @@ func main() {
 	}
 
 	targetFolder := os.Args[1]
-	removedFlags, err := finder.FindAndReplaceFlags(targetFolder, staleFlags, cfg.OpenAIAPIKey)
+	changedFiles, removedFlags, err := finder.FindAndReplaceFlags(targetFolder, staleFlags, cfg.OpenAIAPIKey)
 	if err != nil {
 		fmt.Printf("Error finding affected files: %v\n", err)
 		os.Exit(1)
@@ -45,12 +45,26 @@ func main() {
 
 	summary := report.CreateSummary(staleFlags, removedFlags)
 
+	// chanedFilesに変更がない場合は終了
+	if len(changedFiles) == 0 {
+		fmt.Println("No changes required")
+		return
+	}
+
 	// Create GitHub client
 	githubClient := github.NewClient(cfg.GitHubToken, cfg.GitHubOwner, cfg.GitHubRepo)
 
-	// Create pull request
+	// Commit changes
 	ctx := context.Background()
-	pr, err := githubClient.CreatePullRequest(ctx, "Update stale Unleash flags", summary, "unleash-checker-updates", "main")
+	branchName := "unleash-checker-updates"
+	err = githubClient.CommitChanges(ctx, branchName, "Update stale Unleash flags", changedFiles)
+	if err != nil {
+		fmt.Printf("Error committing changes: %v\n", err)
+		os.Exit(1)
+	}
+
+	// Create pull request
+	pr, err := githubClient.CreatePullRequest(ctx, "Update stale Unleash flags", summary, branchName, "main")
 	if err != nil {
 		fmt.Printf("Error creating pull request: %v\n", err)
 		os.Exit(1)
