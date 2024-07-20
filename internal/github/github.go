@@ -30,6 +30,34 @@ func NewClient(token, owner, repo string) *Client {
 	}
 }
 
+func (c *Client) GetDefaultBranch(ctx context.Context) (string, error) {
+	repo, _, err := c.client.Repositories.Get(ctx, c.owner, c.repo)
+	if err != nil {
+		return "", fmt.Errorf("error getting repository: %v", err)
+	}
+
+	return repo.GetDefaultBranch(), nil
+}
+
+func (c *Client) CreateBranch(ctx context.Context, branch, baseBranch string) error {
+	ref, _, err := c.client.Git.GetRef(ctx, c.owner, c.repo, "refs/heads/"+baseBranch)
+	if err != nil {
+		return fmt.Errorf("error getting base branch ref: %v", err)
+	}
+
+	newRef := &github.Reference{
+		Ref:    github.String("refs/heads/" + branch),
+		Object: &github.GitObject{SHA: ref.Object.SHA},
+	}
+
+	_, _, err = c.client.Git.CreateRef(ctx, c.owner, c.repo, newRef)
+	if err != nil {
+		return fmt.Errorf("error creating new branch: %v", err)
+	}
+
+	return nil
+}
+
 func (c *Client) CommitChanges(ctx context.Context, branch, message string, files []string) error {
 	// Get the current commit SHA
 	ref, _, err := c.client.Git.GetRef(ctx, c.owner, c.repo, "refs/heads/"+branch)

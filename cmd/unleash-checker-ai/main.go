@@ -5,6 +5,7 @@ import (
 	"flag"
 	"fmt"
 	"os"
+	"time"
 
 	"github.com/kromiii/unleash-checker-ai/internal/config"
 	"github.com/kromiii/unleash-checker-ai/internal/finder"
@@ -54,9 +55,25 @@ func main() {
 	// Create GitHub client
 	githubClient := github.NewClient(cfg.GitHubToken, cfg.GitHubOwner, cfg.GitHubRepo)
 
-	// Commit changes
 	ctx := context.Background()
-	branchName := "unleash-checker-updates"
+	currentTime := time.Now().Format("20060112-150405")
+	branchName := "unleash-checker-updates-" + currentTime
+	
+	// Get the default branch
+	defaultBranch, err := githubClient.GetDefaultBranch(ctx)
+	if err != nil {
+		fmt.Printf("Error getting default branch: %v\n", err)
+		os.Exit(1)
+	}
+
+	// Create branch
+	err = githubClient.CreateBranch(ctx, branchName, defaultBranch)
+	if err != nil {
+		fmt.Printf("Error creating branch: %v\n", err)
+		os.Exit(1)
+	}
+
+	// Commit changes
 	err = githubClient.CommitChanges(ctx, branchName, "Update stale Unleash flags", changedFiles)
 	if err != nil {
 		fmt.Printf("Error committing changes: %v\n", err)
@@ -64,7 +81,7 @@ func main() {
 	}
 
 	// Create pull request
-	pr, err := githubClient.CreatePullRequest(ctx, "Update stale Unleash flags", summary, branchName, "main")
+	pr, err := githubClient.CreatePullRequest(ctx, "Update stale Unleash flags", summary, branchName, defaultBranch)
 	if err != nil {
 		fmt.Printf("Error creating pull request: %v\n", err)
 		os.Exit(1)
