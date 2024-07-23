@@ -13,6 +13,7 @@ type Config struct {
 	GitHubToken        string
 	GitHubOwner        string
 	GitHubRepo         string
+	GitHubBaseURL			string
 }
 
 func Load() (*Config, error) {
@@ -23,6 +24,7 @@ func Load() (*Config, error) {
 	githubToken := os.Getenv("GITHUB_TOKEN")
 	githubOwner := os.Getenv("GITHUB_OWNER")
 	githubRepo := os.Getenv("GITHUB_REPO")
+	githubBaseURL := os.Getenv("GITHUB_BASE_URL")
 
 	if endpoint == "" || token == "" || openaiKey == "" || projectID == "" || githubToken == "" || githubOwner == "" || githubRepo == "" {
 		return nil, errors.New("missing required environment variables")
@@ -36,5 +38,6 @@ func Load() (*Config, error) {
 		GitHubToken:        githubToken,
 		GitHubOwner:        githubOwner,
 		GitHubRepo:         githubRepo,
+		GitHubBaseURL:      githubBaseURL,
 	}, nil
 }

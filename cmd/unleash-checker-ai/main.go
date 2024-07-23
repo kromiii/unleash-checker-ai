@@ -53,7 +53,7 @@ func main() {
 	}
 
 	// Create GitHub client
-	githubClient := github.NewClient(cfg.GitHubToken, cfg.GitHubOwner, cfg.GitHubRepo)
+	githubClient := github.NewClient(cfg.GitHubToken, cfg.GitHubOwner, cfg.GitHubRepo, cfg.GitHubBaseURL)
 
 	ctx := context.Background()
 	currentTime := time.Now().Format("20060112-150405")
