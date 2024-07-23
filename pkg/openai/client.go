@@ -10,7 +10,7 @@ import (
 
 const (
 	defaultBaseURL = "https://api.openai.com/v1"
-	MAX_TOKENS     = 4096
+	MAX_TOKENS     = 800
 )
 
 type Client struct {
