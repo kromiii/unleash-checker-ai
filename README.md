@@ -33,7 +33,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - uses: kromiii/unleash-checker-ai@v0.1.11
+      - uses: kromiii/unleash-checker-ai@v0.1.12
         with:
           unleash_api_endpoint: ${{ secrets.UNLEASH_API_ENDPOINT }}
           unleash_api_token: ${{ secrets.UNLEASH_API_TOKEN }}
@@ -48,3 +48,16 @@ jobs:
 生成されるPRのサンプルはこちら
 
 https://github.com/kromiii/unleash-checker-ai/pull/13
+
+GHESで使用される場合はActionsのパラメータに `GITHUB_BASE_URL` を追加してください
+
+```yaml
+        with:
+          unleash_api_endpoint: ${{ secrets.UNLEASH_API_ENDPOINT }}
+          unleash_api_token: ${{ secrets.UNLEASH_API_TOKEN }}
+          unleash_project_id: ${{ secrets.UNLEASH_PROJECT_ID }}
+          openai_api_key: ${{ secrets.OPENAI_API_KEY }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          target_path: 'app'
+          github_base_url: 'https://github.example.com'
+```
