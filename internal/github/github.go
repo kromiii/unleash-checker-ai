@@ -3,6 +3,7 @@ package github
 import (
 	"context"
 	"fmt"
+	"net/url"
 	"os"
 
 	"github.com/google/go-github/v38/github"
@@ -15,13 +16,21 @@ type Client struct {
 	repo   string
 }
 
-func NewClient(token, owner, repo string) *Client {
+func NewClient(token, owner, repo, baseURL string) *Client {
 	ctx := context.Background()
 	ts := oauth2.StaticTokenSource(
 		&oauth2.Token{AccessToken: token},
 	)
 	tc := oauth2.NewClient(ctx, ts)
 	client := github.NewClient(tc)
+
+	// GHES のエンドポイントを設定
+	if baseURL != "" {
+		baseEndpoint, _ := url.Parse(baseURL + "/api/v3/")
+		uploadEndpoint, _ := url.Parse(baseURL + "/api/uploads/")
+		client.BaseURL = baseEndpoint
+		client.UploadURL = uploadEndpoint
+	}
 
 	return &Client{
 		client: client,
