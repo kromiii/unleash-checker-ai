@@ -2,6 +2,7 @@ package github
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
@@ -78,37 +79,21 @@ func TestCreateBranch(t *testing.T) {
 	}
 }
 
-// 他のメソッドのテストも同様に実装してください
 func TestCommitChanges(t *testing.T) {
 	mux := http.NewServeMux()
 	server := httptest.NewServer(mux)
 	defer server.Close()
 
-	mux.HandleFunc("/repos/owner/repo/git/refs/heads/test-branch", func(w http.ResponseWriter, r *http.Request) {
-		if r.Method == http.MethodGet {
-			w.WriteHeader(http.StatusOK)
-			w.Write([]byte(`{"object": {"sha": "abcdef1234567890"}}`))
-		} else if r.Method == http.MethodPatch {
-			w.WriteHeader(http.StatusOK)
-			w.Write([]byte(`{"ref": "refs/heads/test-branch", "object": {"sha": "newcommitsha"}}`))
-		} else {
-			http.Error(w, "不正なメソッド", http.StatusMethodNotAllowed)
+	// mainブランチの参照を取得するためのハンドラを追加
+	mux.HandleFunc("/repos/owner/repo/git/ref/heads/main", func(w http.ResponseWriter, r *http.Request) {
+		fmt.Fprint(w, `{"ref":"refs/heads/main","object":{"sha":"1234567890abcdef"}}`)
+	})
+
+	// テストブランチを作成するハンドラ
+	mux.HandleFunc("/repos/owner/repo/git/refs", func(w http.ResponseWriter, r *http.Request) {
+		if r.Method == "POST" {
+			fmt.Fprint(w, `{"ref":"refs/heads/test-branch","object":{"sha":"0123456789abcdef"}}`)
 		}
-	})
-
-	mux.HandleFunc("/repos/owner/repo/git/trees", func(w http.ResponseWriter, r *http.Request) {
-		w.WriteHeader(http.StatusCreated)
-		w.Write([]byte(`{"sha": "newtreesha"}`))
-	})
-
-	mux.HandleFunc("/repos/owner/repo/commits/abcdef1234567890", func(w http.ResponseWriter, r *http.Request) {
-		w.WriteHeader(http.StatusOK)
-		w.Write([]byte(`{"sha": "parentcommitsha"}`))
-	})
-
-	mux.HandleFunc("/repos/owner/repo/git/commits", func(w http.ResponseWriter, r *http.Request) {
-		w.WriteHeader(http.StatusCreated)
-		w.Write([]byte(`{"sha": "newcommitsha"}`))
 	})
 
 	client := &Client{
@@ -118,6 +103,39 @@ func TestCommitChanges(t *testing.T) {
 	}
 	baseURL, _ := url.Parse(server.URL + "/")
 	client.client.BaseURL = baseURL
+
+	err := client.CreateBranch(context.Background(), "test-branch", "main")
+	if err != nil {
+		t.Fatalf("CreateBranch returned error: %v", err)
+	}
+
+	// テストブランチのrefを取得するためのハンドラを追加
+	mux.HandleFunc("/repos/owner/repo/git/ref/heads/test-branch", func(w http.ResponseWriter, r *http.Request) {
+		fmt.Fprint(w, `{"ref":"refs/heads/test-branch","object":{"sha":"0123456789abcdef"}}`)
+	})
+
+	// 親コミットを取得するためのハンドラを追加
+	mux.HandleFunc("/repos/owner/repo/commits/0123456789abcdef", func(w http.ResponseWriter, r *http.Request) {
+		fmt.Fprint(w, `{"sha": "0123456789abcdef", "commit": {"tree": {"sha": "4b825dc642cb6eb9a060e54bf8d69288fbee4904"}}}`)
+	})
+
+	mux.HandleFunc("/repos/owner/repo/git/trees", func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusCreated)
+		w.Write([]byte(`{"sha": "newtreesha"}`))
+	})
+
+	mux.HandleFunc("/repos/owner/repo/git/commits", func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusCreated)
+		w.Write([]byte(`{"sha": "newcommitsha"}`))
+	})
+
+	// ブランチの参照を更新するためのハンドラを追加
+	mux.HandleFunc("/repos/owner/repo/git/refs/heads/test-branch", func(w http.ResponseWriter, r *http.Request) {
+		if r.Method == "PATCH" {
+			w.WriteHeader(http.StatusOK)
+			fmt.Fprint(w, `{"ref":"refs/heads/test-branch","object":{"sha":"newcommitsha"}}`)
+		}
+	})
 
 	// テスト用の一時ファイルを作成
 	tempFile, err := os.CreateTemp("", "test")
