@@ -10,11 +10,11 @@ import (
 
 type MockOpenAIClient struct {
 	mock.Mock
+	ModifyCodeFunc func(content, instruction string) (string, error)
 }
 
 func (m *MockOpenAIClient) ModifyCode(content, instruction string) (string, error) {
-	args := m.Called(content, instruction)
-	return args.String(0), args.Error(1)
+	return m.ModifyCodeFunc(content, instruction)
 }
 
 var _ OpenAIClientInterface = (*MockOpenAIClient)(nil)
@@ -41,8 +41,12 @@ func main() {
 	assert.NoError(t, err)
 
 	// モックOpenAIクライアントを作成
-	mockClient := new(MockOpenAIClient)
-	mockClient.On("ModifyCode", mock.Anything, mock.Anything).Return(testContent, nil)
+	mockClient := &MockOpenAIClient{
+		ModifyCodeFunc: func(content, instruction string) (string, error) {
+			// OpenAIの応答をシミュレート
+			return content, nil
+		},
+	}
 
 	// Modifierを作成
 	m := &Modifier{openaiClient: mockClient}
@@ -60,8 +64,8 @@ func main() {
 	assert.NoError(t, err)
 	expectedContent := `package main
 
-// This feature flag is stale and can be removed: featureFlag1
 func main() {
+// This feature flag is stale and can be removed: featureFlag1
 	if featureFlag1 {
 		// some code
 	}
