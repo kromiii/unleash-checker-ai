@@ -24,7 +24,10 @@ func TestGetStaleFlags(t *testing.T) {
 				{Name: "flag4", Type: "killSwitch", CreatedAt: time.Now().Add(-366 * 24 * time.Hour), Enabled: true, Stale: false},
 			},
 		}
-		json.NewEncoder(w).Encode(response)
+		if err := json.NewEncoder(w).Encode(response); err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
 	}))
 	defer server.Close()
 

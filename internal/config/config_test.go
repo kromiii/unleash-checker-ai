@@ -19,15 +19,15 @@ func TestLoad(t *testing.T) {
 
 		config, err := Load()
 		if err != nil {
-			t.Errorf("予期せぬエラー: %v", err)
+			t.Fatalf("予期せぬエラー: %v", err)
 		}
 		if config == nil {
-			t.Error("設定がnilです")
+			t.Fatal("設定がnilです")
+			return
 		}
 		if config.UnleashAPIEndpoint != "https://example.com" {
 			t.Errorf("UnleashAPIEndpointが期待値と異なります: got %v, want %v", config.UnleashAPIEndpoint, "https://example.com")
 		}
-		// 他のフィールドも同様にチェック
 	})
 
 	// エラー系のテスト

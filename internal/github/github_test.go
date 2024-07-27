@@ -16,6 +16,7 @@ func TestNewClient(t *testing.T) {
 	client := NewClient("token", "owner", "repo", "")
 	if client == nil {
 		t.Fatal("NewClient returned nil")
+		return
 	}
 	if client.owner != "owner" {
 		t.Errorf("Expected owner to be 'owner', got %s", client.owner)
@@ -32,7 +33,9 @@ func TestGetDefaultBranch(t *testing.T) {
 
 	mux.HandleFunc("/repos/owner/repo", func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
-		w.Write([]byte(`{"default_branch": "main"}`))
+		if _, err := w.Write([]byte(`{"default_branch": "main"}`)); err != nil {
+			t.Fatalf("failed to write response: %v", err)
+		}
 	})
 
 	client := &Client{
@@ -58,7 +61,9 @@ func TestCreateBranch(t *testing.T) {
 
 	mux.HandleFunc("/repos/owner/repo/git/ref/heads/main", func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
-		w.Write([]byte(`{"object": {"sha": "abcdef1234567890"}}`))
+		if _, err := w.Write([]byte(`{"object": {"sha": "abcdef1234567890"}}`)); err != nil {
+			t.Fatalf("failed to write response: %v", err)
+		}
 	})
 
 	mux.HandleFunc("/repos/owner/repo/git/refs", func(w http.ResponseWriter, r *http.Request) {
@@ -121,12 +126,16 @@ func TestCommitChanges(t *testing.T) {
 
 	mux.HandleFunc("/repos/owner/repo/git/trees", func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusCreated)
-		w.Write([]byte(`{"sha": "newtreesha"}`))
+		if _, err := w.Write([]byte(`{"sha": "newtreesha"}`)); err != nil {
+			t.Fatalf("failed to write response: %v", err)
+		}
 	})
 
 	mux.HandleFunc("/repos/owner/repo/git/commits", func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusCreated)
-		w.Write([]byte(`{"sha": "newcommitsha"}`))
+		if _, err := w.Write([]byte(`{"sha": "newcommitsha"}`)); err != nil {
+			t.Fatalf("failed to write response: %v", err)
+		}
 	})
 
 	// ブランチの参照を更新するためのハンドラを追加
@@ -163,16 +172,22 @@ func TestCreatePullRequest(t *testing.T) {
 
 	mux.HandleFunc("/repos/owner/repo/branches/new-branch", func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
-		w.Write([]byte(`{"name": "new-branch"}`))
+		if _, err := w.Write([]byte(`{"name": "new-branch"}`)); err != nil {
+			t.Fatalf("failed to write response: %v", err)
+		}
 	})
 
 	mux.HandleFunc("/repos/owner/repo/pulls", func(w http.ResponseWriter, r *http.Request) {
 		if r.Method == "GET" {
 			w.WriteHeader(http.StatusOK)
-			w.Write([]byte(`[]`))
+			if _, err := w.Write([]byte(`[]`)); err != nil {
+				t.Fatalf("failed to write response: %v", err)
+			}
 		} else if r.Method == "POST" {
 			w.WriteHeader(http.StatusCreated)
-			w.Write([]byte(`{"number": 1, "title": "テストPR", "body": "PRの本文"}`))
+			if _, err := w.Write([]byte(`{"number": 1, "title": "テストPR", "body": "PRの本文"}`)); err != nil {
+				t.Fatalf("failed to write response: %v", err)
+			}
 		}
 	})
 
