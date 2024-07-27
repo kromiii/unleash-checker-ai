@@ -8,8 +8,12 @@ import (
 	"github.com/kromiii/unleash-checker-ai/pkg/openai"
 )
 
+type OpenAIClientInterface interface {
+	ModifyCode(content, instruction string) (string, error)
+}
+
 type Modifier struct {
-	openaiClient *openai.Client
+	openaiClient OpenAIClientInterface
 }
 
 func NewModifier(apiKey string) *Modifier {
