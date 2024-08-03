@@ -19,7 +19,7 @@ func FindAndReplaceFlags(root string, flags []string, apiKey string) ([]string, 
 		if info.IsDir() {
 			return nil
 		}
-		foundFlags := isFlagUsedInFile(path, flags)
+		foundFlags := findFlagsInFile(path, flags)
 		if len(foundFlags) > 0 {
 			modifier := modifier.NewModifier(apiKey)
 			err := modifier.ModifyFile(path, foundFlags) // 新しい変数で削除されたフラグを受け取る
@@ -35,7 +35,7 @@ func FindAndReplaceFlags(root string, flags []string, apiKey string) ([]string, 
 	return changedFiles, removedFlags, err
 }
 
-func isFlagUsedInFile(path string, flags []string) []string {
+func findFlagsInFile(path string, flags []string) []string {
 	foundFlags := []string{}
 	content, err := os.ReadFile(path) // ファイル全体を読み込む
 	if err != nil {
