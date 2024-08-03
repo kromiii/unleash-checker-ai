@@ -147,7 +147,7 @@ type ChatCompletionResponse struct {
 }
 
 const (
-	Model                 = "gpt-4"
+	Model                 = "gpt-4o"
 	ChatMessageRoleUser   = "user"
 	ChatMessageRoleSystem = "system"
 )
