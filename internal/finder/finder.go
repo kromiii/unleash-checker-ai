@@ -19,37 +19,36 @@ func FindAndReplaceFlags(root string, flags []string, apiKey string) ([]string, 
 		if info.IsDir() {
 			return nil
 		}
-		if isFlagUsedInFile(path, flags) {
+		foundFlags := isFlagUsedInFile(path, flags)
+		if len(foundFlags) > 0 {
 			modifier := modifier.NewModifier(apiKey)
-			currentRemovedFlags, err := modifier.ModifyFile(path, flags) // 新しい変数で削除されたフラグを受け取る
+			err := modifier.ModifyFile(path, foundFlags) // 新しい変数で削除されたフラグを受け取る
 			if err != nil {
 				return err
 			}
-			for _, flag := range currentRemovedFlags {
-				if !contains(removedFlags, flag) {
-					removedFlags = append(removedFlags, flag)
-				}
-			}
+			removedFlags = append(removedFlags, foundFlags...)
 			changedFiles = append(changedFiles, path)
 		}
 		return nil
 	})
+	removedFlags = removeDuplicateStrings(removedFlags)
 	return changedFiles, removedFlags, err
 }
 
-func isFlagUsedInFile(path string, flags []string) bool {
+func isFlagUsedInFile(path string, flags []string) []string {
+	foundFlags := []string{}
 	content, err := os.ReadFile(path) // ファイル全体を読み込む
 	if err != nil {
-		return false
+		return foundFlags
 	}
 
 	for _, flag := range flags {
 		if strings.Contains(string(content), flag) {
-			return true
+			foundFlags = append(foundFlags, flag)
 		}
 	}
 
-	return false
+	return foundFlags
 }
 
 func contains(slice []string, str string) bool {
@@ -59,4 +58,16 @@ func contains(slice []string, str string) bool {
 		}
 	}
 	return false
+}
+
+func removeDuplicateStrings(s []string) []string {
+	seen := make(map[string]bool)
+	result := []string{}
+	for _, str := range s {
+		if !seen[str] {
+			seen[str] = true
+			result = append(result, str)
+		}
+	}
+	return result
 }
