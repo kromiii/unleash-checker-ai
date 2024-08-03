@@ -72,6 +72,8 @@ func stripLineNumbers(content string) string {
 func applyDiff(originalContent, diff string) (string, error) {
     lines := strings.Split(originalContent, "\n")
     diffLines := strings.Split(diff, "\n")
+    result := []string{}
+    lineIndex := 0
 
     for _, diffLine := range diffLines {
         parts := strings.SplitN(diffLine, ": ", 2)
@@ -79,24 +81,41 @@ func applyDiff(originalContent, diff string) (string, error) {
             continue
         }
 
-        lineNum, err := strconv.Atoi(parts[0])
-        if err != nil {
-            if parts[0] == "*" {
-                lines = append([]string{parts[1]}, lines...)
-            } else if parts[0] == "+" {
-                lines = append(lines, parts[1])
+        if parts[0] == "_" {
+            // 冒頭に新しい行を追加
+            result = append(result, parts[1])
+        } else if parts[0] == "+" {
+            // 末尾に新しい行を追加
+            result = append(result, parts[1])
+        } else {
+            lineNum, err := strconv.Atoi(parts[0])
+            if err != nil {
+                continue
             }
-            continue
-        }
 
-        if lineNum > 0 && lineNum <= len(lines) {
-            if parts[1] == "" {
-                lines = append(lines[:lineNum-1], lines[lineNum:]...)
-            } else {
-                lines[lineNum-1] = fmt.Sprintf("%d: %s", lineNum, parts[1])
+            // 変更されていない行を追加
+            for lineIndex < lineNum-1 {
+                result = append(result, lines[lineIndex])
+                lineIndex++
+            }
+
+            if lineNum > 0 && lineNum <= len(lines) {
+                if parts[1] == "" {
+                    // 行を削除（何もしない）
+                } else {
+                    // 行を置換または修正（行番号を保持）
+                    result = append(result, fmt.Sprintf("%d: %s", lineNum, parts[1]))
+                }
+                lineIndex = lineNum
             }
         }
     }
 
-    return strings.Join(lines, "\n"), nil
+    // 残りの変更されていない行を追加
+    for lineIndex < len(lines) {
+        result = append(result, lines[lineIndex])
+        lineIndex++
+    }
+
+    return strings.Join(result, "\n"), nil
 }
