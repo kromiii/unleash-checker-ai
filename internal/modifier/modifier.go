@@ -31,7 +31,6 @@ func (m *Modifier) ModifyFile(filePath string, unusedFlags []string) error {
 
     numberedContent := addLineNumbers(string(content))
     diff, err := m.openaiClient.ModifyCode(numberedContent, unusedFlags)
-	fmt.Println(diff)
     if err != nil {
         return err
     }
