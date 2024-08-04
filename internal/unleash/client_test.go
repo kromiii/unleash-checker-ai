@@ -2,6 +2,7 @@ package unleash
 
 import (
 	"encoding/json"
+	"math"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -40,7 +41,7 @@ func TestGetStaleFlags(t *testing.T) {
 		onlyStaleFlags bool
 		expected       []string
 	}{
-		{"全ての古いフラグを取得", false, []string{"flag1", "flag3", "flag4"}},
+		{"全ての古いフラグを取得", false, []string{"flag1", "flag3"}},
 		{"Staleフラグのみを取得", true, []string{"flag3"}},
 	}
 
@@ -66,22 +67,22 @@ func TestGetStaleFlags(t *testing.T) {
 
 func TestGetExpectedLifetime(t *testing.T) {
 	tests := []struct {
+		name     string
 		flagType string
-		expected time.Duration
+		want     time.Duration
 	}{
-		{"release", 40 * 24 * time.Hour},
-		{"experiment", 40 * 24 * time.Hour},
-		{"operational", 7 * 24 * time.Hour},
-		{"killSwitch", 365 * 24 * time.Hour},
-		{"permission", 365 * 24 * time.Hour},
-		{"unknown", 30 * 24 * time.Hour},
+		{"release", "release", 40 * 24 * time.Hour},
+		{"experiment", "experiment", 40 * 24 * time.Hour},
+		{"operational", "operational", 7 * 24 * time.Hour},
+		{"killSwitch", "killSwitch", time.Duration(math.MaxInt64)},
+		{"permission", "permission", time.Duration(math.MaxInt64)},
+		{"default", "unknown", 30 * 24 * time.Hour},
 	}
 
-	for _, tc := range tests {
-		t.Run(tc.flagType, func(t *testing.T) {
-			result := getExpectedLifetime(tc.flagType)
-			if result != tc.expected {
-				t.Errorf("Expected %v for %s, got %v", tc.expected, tc.flagType, result)
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := getExpectedLifetime(tt.flagType); got != tt.want {
+				t.Errorf("Expected %v for %s, got %v", tt.want, tt.flagType, got)
 			}
 		})
 	}
