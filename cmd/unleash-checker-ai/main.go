@@ -58,7 +58,7 @@ func main() {
 	ctx := context.Background()
 	currentTime := time.Now().Format("20060112-150405")
 	branchName := "unleash-checker-updates-" + currentTime
-	
+
 	// Get the default branch
 	defaultBranch, err := githubClient.GetDefaultBranch(ctx)
 	if err != nil {
@@ -66,24 +66,10 @@ func main() {
 		os.Exit(1)
 	}
 
-	// Create branch
-	err = githubClient.CreateBranch(ctx, branchName, defaultBranch)
+	// Create branch, commit changes, and create/update pull request
+	pr, err := githubClient.CreateUpdatePullRequest(ctx, branchName, "Update stale Unleash flags", "Update stale Unleash flags", summary, defaultBranch, changedFiles)
 	if err != nil {
-		fmt.Printf("Error creating branch: %v\n", err)
-		os.Exit(1)
-	}
-
-	// Commit changes
-	err = githubClient.CommitChanges(ctx, branchName, "Update stale Unleash flags", changedFiles)
-	if err != nil {
-		fmt.Printf("Error committing changes: %v\n", err)
-		os.Exit(1)
-	}
-
-	// Create pull request
-	pr, err := githubClient.CreatePullRequest(ctx, "Update stale Unleash flags", summary, branchName, defaultBranch)
-	if err != nil {
-		fmt.Printf("Error creating pull request: %v\n", err)
+		fmt.Printf("Error creating/updating pull request: %v\n", err)
 		os.Exit(1)
 	}
 
