@@ -3,6 +3,7 @@ package unleash
 import (
 	"encoding/json"
 	"fmt"
+	"math"
 	"net/http"
 	"time"
 )
@@ -82,12 +83,12 @@ func getStaleFlags(flags []FeatureFlag, onlyStaleFlags bool) []string {
 func getExpectedLifetime(flagType string) time.Duration {
 	switch flagType {
 	case "release", "experiment":
-		return 40 * 24 * time.Hour // 40 days
+		return 40 * 24 * time.Hour // 40日
 	case "operational":
-		return 7 * 24 * time.Hour // 7 days
+		return 7 * 24 * time.Hour // 7日
 	case "killSwitch", "permission":
-		return 365 * 24 * time.Hour // 1 year (as these are expected to be permanent)
+		return time.Duration(math.MaxInt64) // 実質的に永続
 	default:
-		return 30 * 24 * time.Hour // Default to 30 days
+		return 30 * 24 * time.Hour // デフォルトは30日
 	}
 }
