@@ -1,27 +1,26 @@
 # unleash-checker-ai
 
-unleash api を参照して使われていないflagを発見、コードから該当する部分を抽出し、LLMによるコードの修正を行うツールです
+This tool identifies unused feature flags by referencing the Unleash API, extracts the relevant code sections, and uses LLM to correct the code.
 
-flag の lifetime から potentially stale な flag も対象とし、コードの修正を行います
+It also targets potentially stale flags based on their lifetime and modifies the code accordingly.
 
 ref: https://docs.getunleash.io/reference/technical-debt
 
-コードの修正に openai api を使用しているため課金が発生します
+Please note that using the OpenAI API for code modification will incur charges.
 
-トークンの長いファイルに対しては、LLMによる修正は行わず、コメントで flag の使用箇所を示すのみとなります
+## Usage
 
-## 使い方
+Unleash Checker AI is intended to be used with GitHub Actions.
 
-Unleash Checker AI は GitHub Actions での利用を想定しています
+Please set the following environment variables in Actions Secret:
 
-Actions Secret に以下の環境変数を設定してください
+* UNLEASH_API_ENDPOINT: Unleash endpoint (https://app.unleash-hosted.com/api)
+* UNLEASH_API_TOKEN: Unleash API token
+* UNLEASH_PROJECT_ID: Project ID ("default")
+* OPENAI_API_KEY: OpenAI API key
 
-* UNLEASH_API_ENDPOINT: Unleash のエンドポイント (https://app.unleash-hosted.com/api)
-* UNLEASH_API_TOKEN: Unleash の API トークン
-* UNLEASH_PROJECT_ID: プロジェクトID ("default")
-* OPENAI_API_KEY: OpenAI API キー
+Set up a workflow like the one below in the repository you want to scan:
 
-スキャンしたいレポジトリで以下のようなワークフローを設定してください
 
 ```yaml
 name: Unleash Checker
@@ -43,13 +42,14 @@ jobs:
           target_path: 'app'
 ```
 
-`target_path` でフォルダを絞って実行することができます。デフォルトは全てのファイルが対象となりますが、サードパーティのライブラリなどを除外するために指定することをお勧めします。
 
-生成されるPRのサンプルはこちら
+You can narrow down the execution folder with `target_path`. By default, all files are targeted, but it is recommended to specify it to exclude third-party libraries, etc.
+
+Here is an example of the generated PR
 
 https://github.com/kromiii/unleash-checker-ai/pull/13
 
-GHESで使用される場合はActionsのパラメータに `GITHUB_BASE_URL` を追加してください
+If you are using GHES, please add `GITHUB_BASE_URL` to the Actions parameters.
 
 ```yaml
         with:
@@ -59,5 +59,5 @@ GHESで使用される場合はActionsのパラメータに `GITHUB_BASE_URL` �
           openai_api_key: ${{ secrets.OPENAI_API_KEY }}
           github_token: ${{ secrets.GITHUB_TOKEN }}
           target_path: 'app'
-          github_base_url: 'https://github.example.com'
+          github_base_url: 'https://git.example.com'
 ```
