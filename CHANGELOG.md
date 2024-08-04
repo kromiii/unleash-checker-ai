@@ -1,5 +1,8 @@
 # Changelog
 
+## [v0.1.15](https://github.com/kromiii/unleash-checker-ai/compare/v0.1.14...v0.1.15) - 2024-08-04
+- Translation by @kromiii in https://github.com/kromiii/unleash-checker-ai/pull/33
+
 ## [v0.1.14](https://github.com/kromiii/unleash-checker-ai/compare/v0.1.13...v0.1.14) - 2024-08-04
 - chore: Refactor FindAndReplaceFlags function by @kromiii in https://github.com/kromiii/unleash-checker-ai/pull/28
 - 差分更新を実装 by @kromiii in https://github.com/kromiii/unleash-checker-ai/pull/30
