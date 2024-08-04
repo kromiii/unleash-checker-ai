@@ -8,8 +8,6 @@ ref: https://docs.getunleash.io/reference/technical-debt
 
 Please note that using the OpenAI API for code modification will incur charges.
 
-For files with a large number of tokens, LLM modification will not be performed, and only comments will be added to indicate where the flags are used.
-
 ## Usage
 
 Unleash Checker AI is intended to be used with GitHub Actions.
