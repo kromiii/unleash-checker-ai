@@ -13,18 +13,16 @@ func TestCreateSummary(t *testing.T) {
 		want         string
 	}{
 		{
-			name:         "古いフラグがない場合",
+			name:         "空のフラグリスト",
 			staleFlags:   []string{},
 			removedFlags: []string{},
-			want:         "# Unleash Checker の結果報告\n\n## 概要\n**古いフラグは見つかりませんでした**\n\n",
+			want:         "# Unleash Checker Results Report\n\n## Overview\n**No stale flags were found**\n\n",
 		},
 		{
-			name:         "古いフラグがあり、一部が削除された場合",
-			staleFlags:   []string{"flag1", "flag2", "flag3"},
-			removedFlags: []string{"flag1", "flag2"},
-			want: "# Unleash Checker の結果報告\n\n## 概要\n**Unleash Checker** が **3個の古いフラグ** を検出しました。\n\n" +
-				"## 削除されたフラグ\n以下のフラグがファイルから削除されました（古くなっているため）:\n\n- `flag1`\n- `flag2`\n\n" +
-				"## 見つからなかったフラグ\n以下のフラグは指定されたディレクトリで見つかりませんでした:\n\n- `flag3`\n\n",
+			name:         "削除されたフラグあり",
+			staleFlags:   []string{"flag1", "flag2"},
+			removedFlags: []string{"flag1"},
+			want:         "# Unleash Checker Results Report\n\n## Overview\n**Unleash Checker** has detected **2 stale flags**.\n\n## Removed Flags\nThe following flags have been removed from the files (due to being stale):\n\n- `flag1`\n\n## Unfound Flags\nThe following flags were not found in the specified directories:\n\n- `flag2`\n\n",
 		},
 	}
 
@@ -46,21 +44,21 @@ func TestDifference(t *testing.T) {
 		want   []string
 	}{
 		{
-			name:   "スライスAにのみ存在する要素がある場合",
+			name:   "完全に異なるスライス",
 			sliceA: []string{"a", "b", "c"},
-			sliceB: []string{"b", "c"},
-			want:   []string{"a"},
+			sliceB: []string{"d", "e", "f"},
+			want:   []string{"a", "b", "c"},
 		},
 		{
-			name:   "両方のスライスが同じ場合",
-			sliceA: []string{"a", "b", "c"},
-			sliceB: []string{"a", "b", "c"},
-			want:   []string{},
+			name:   "部分的に重複するスライス",
+			sliceA: []string{"a", "b", "c", "d"},
+			sliceB: []string{"b", "d"},
+			want:   []string{"a", "c"},
 		},
 		{
-			name:   "スライスAが空の場合",
+			name:   "空のスライス",
 			sliceA: []string{},
-			sliceB: []string{"a", "b", "c"},
+			sliceB: []string{"a", "b"},
 			want:   []string{},
 		},
 	}
@@ -75,6 +73,7 @@ func TestDifference(t *testing.T) {
 	}
 }
 
+// スライスの等価性をチェックするヘルパー関数
 func equalSlices(a, b []string) bool {
 	if len(a) != len(b) {
 		return false
