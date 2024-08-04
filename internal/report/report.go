@@ -47,7 +47,6 @@ func CreateSummary(staleFlags []string, removedFlags []string) string {
 
 	output.WriteString("---\n\n")
 	output.WriteString("このPRは **Unleash Checker AI GitHub Action** によって自動生成されました。\n")
-	output.WriteString("使用されている unleash-checker-ai のバージョン: **v0.1.8**\n")
 
 	return output.String()
 }
