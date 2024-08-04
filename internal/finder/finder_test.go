@@ -28,7 +28,7 @@ func TestFindAndReplaceFlags(t *testing.T) {
 	assert.ElementsMatch(t, removedFlags, []string{"flag1", "flag2"})
 }
 
-func TestIsFlagUsedInFile(t *testing.T) {
+func TestFindFlagsInFile(t *testing.T) {
 	// テストファイルを作成
 	tempFile, err := os.CreateTemp("", "test")
 	require.NoError(t, err)
@@ -42,16 +42,16 @@ func TestIsFlagUsedInFile(t *testing.T) {
 	testCases := []struct {
 		name     string
 		flags    []string
-		expected bool
+		expected []string
 	}{
-		{"Flag present", []string{"testFlag"}, true},
-		{"Flag not present", []string{"nonexistentFlag"}, false},
-		{"Multiple flags, one present", []string{"nonexistentFlag", "testFlag"}, true},
+		{"Flag present", []string{"testFlag"}, []string{"testFlag"}},
+		{"Flag not present", []string{"nonexistentFlag"}, []string{}},
+		{"Multiple flags, one present", []string{"nonexistentFlag", "testFlag"}, []string{"testFlag"}},
 	}
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			result := isFlagUsedInFile(tempFile.Name(), tc.flags)
+			result := findFlagsInFile(tempFile.Name(), tc.flags)
 			assert.Equal(t, tc.expected, result)
 		})
 	}

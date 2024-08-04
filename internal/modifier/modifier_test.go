@@ -8,108 +8,70 @@ import (
 	"github.com/stretchr/testify/mock"
 )
 
-type MockOpenAIClient struct {
+// OpenAIClientMock は OpenAIClientInterface のモック実装です
+type OpenAIClientMock struct {
 	mock.Mock
-	ModifyCodeFunc func(content, instruction string) (string, error)
 }
 
-func (m *MockOpenAIClient) ModifyCode(content, instruction string) (string, error) {
-	return m.ModifyCodeFunc(content, instruction)
+func (m *OpenAIClientMock) ModifyCode(content string, flags []string) (string, error) {
+	args := m.Called(content, flags)
+	return args.String(0), args.Error(1)
 }
 
-var _ OpenAIClientInterface = (*MockOpenAIClient)(nil)
-
-func TestModifyFile(t *testing.T) {
+func TestModifier_ModifyFile(t *testing.T) {
 	// テスト用の一時ファイルを作成
-	tempFile, err := os.CreateTemp("", "test_file_*.go")
+	content := "line1\nline2\nline3"
+	tmpfile, err := os.CreateTemp("", "example")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer os.Remove(tmpfile.Name())
+
+	if _, err := tmpfile.Write([]byte(content)); err != nil {
+		t.Fatal(err)
+	}
+	if err := tmpfile.Close(); err != nil {
+		t.Fatal(err)
+	}
+
+	// OpenAIClientMock を設定
+	mockClient := new(OpenAIClientMock)
+	mockClient.On("ModifyCode", mock.Anything, mock.Anything).Return("2: modified line2", nil)
+
+	// Modifier を作成
+	modifier := &Modifier{openaiClient: mockClient}
+
+	// ModifyFile を実行
+	err = modifier.ModifyFile(tmpfile.Name(), []string{})
 	assert.NoError(t, err)
-	defer os.Remove(tempFile.Name())
 
-	// テスト用のコンテンツを書き込む
-	testContent := `package main
-
-func main() {
-	if featureFlag1 {
-		// some code
-	}
-	if featureFlag2 {
-		// some other code
-	}
-}
-`
-	err = os.WriteFile(tempFile.Name(), []byte(testContent), 0644)
+	// 結果を確認
+	modifiedContent, err := os.ReadFile(tmpfile.Name())
 	assert.NoError(t, err)
+	assert.Equal(t, "line1\nmodified line2\nline3", string(modifiedContent))
 
-	// モックOpenAIクライアントを作成
-	mockClient := &MockOpenAIClient{
-		ModifyCodeFunc: func(content, instruction string) (string, error) {
-			// OpenAIの応答をシミュレート
-			return content, nil
-		},
-	}
-
-	// Modifierを作成
-	m := &Modifier{openaiClient: mockClient}
-
-	// テスト実行
-	unusedFlags := []string{"featureFlag1", "featureFlag2"}
-	removedFlags, err := m.ModifyFile(tempFile.Name(), unusedFlags)
-
-	// アサーション
-	assert.NoError(t, err)
-	assert.Equal(t, unusedFlags, removedFlags)
-
-	// ファイルの内容を確認
-	modifiedContent, err := os.ReadFile(tempFile.Name())
-	assert.NoError(t, err)
-	expectedContent := `package main
-
-func main() {
-// This feature flag is stale and can be removed: featureFlag1
-	if featureFlag1 {
-		// some code
-	}
-// This feature flag is stale and can be removed: featureFlag2
-	if featureFlag2 {
-		// some other code
-	}
-}
-`
-	assert.Equal(t, expectedContent, string(modifiedContent))
-
-	// モックの呼び出しを確認
 	mockClient.AssertExpectations(t)
 }
 
-func TestFindMatchedFlag(t *testing.T) {
-	testCases := []struct {
-		name     string
-		input    string
-		flags    []string
-		expected bool
-		matched  string
-	}{
-		{
-			name:     "Match found",
-			input:    "if featureFlag1 {",
-			flags:    []string{"featureFlag1", "featureFlag2"},
-			expected: true,
-			matched:  "featureFlag1",
-		},
-		{
-			name:     "No match found",
-			input:    "if someOtherFlag {",
-			flags:    []string{"featureFlag1", "featureFlag2"},
-			expected: false,
-			matched:  "",
-		},
-	}
+func TestAddLineNumbers(t *testing.T) {
+	input := "line1\nline2\nline3"
+	expected := "1: line1\n2: line2\n3: line3"
+	result := addLineNumbers(input)
+	assert.Equal(t, expected, result)
+}
 
-	for _, tc := range testCases {
-		t.Run(tc.name, func(t *testing.T) {
-			found, matched := findMatchedFlag(tc.input, tc.flags)
-			assert.Equal(t, tc.expected, found)
-			assert.Equal(t, tc.matched, matched)
-		})
-	}
+func TestStripLineNumbers(t *testing.T) {
+	input := "1: line1\n2: line2\n3: line3"
+	expected := "line1\nline2\nline3"
+	result := stripLineNumbers(input)
+	assert.Equal(t, expected, result)
+}
+
+func TestApplyDiff(t *testing.T) {
+	original := "1: line1\n2: line2\n3: line3"
+	diff := "_: new first line\n2: modified line2\n3: \n+: new line4\n+: new last line"
+	expected := "new first line\n1: line1\n2: modified line2\nnew line4\nnew last line"
+	result, err := applyDiff(original, diff)
+	assert.NoError(t, err)
+	assert.Equal(t, expected, result)
 }
