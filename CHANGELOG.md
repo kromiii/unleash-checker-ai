@@ -1,5 +1,10 @@
 # Changelog
 
+## [v0.1.14](https://github.com/kromiii/unleash-checker-ai/compare/v0.1.13...v0.1.14) - 2024-08-04
+- chore: Refactor FindAndReplaceFlags function by @kromiii in https://github.com/kromiii/unleash-checker-ai/pull/28
+- 差分更新を実装 by @kromiii in https://github.com/kromiii/unleash-checker-ai/pull/30
+- chore: Create/update pull request for updating stale Unleash flags by @kromiii in https://github.com/kromiii/unleash-checker-ai/pull/31
+
 ## [v0.1.13](https://github.com/kromiii/unleash-checker-ai/compare/v0.1.12...v0.1.13) - 2024-07-27
 - Add tests by @kromiii in https://github.com/kromiii/unleash-checker-ai/pull/23
 - add tagpr by @kromiii in https://github.com/kromiii/unleash-checker-ai/pull/24
