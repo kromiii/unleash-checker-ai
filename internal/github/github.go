@@ -177,3 +177,26 @@ func (c *Client) CreatePullRequest(ctx context.Context, title, body, head, base 
 		return pr, nil
 	}
 }
+
+// CreateUpdatePullRequest はブランチの作成、コミット、プルリクエストの作成または更新を行う
+func (c *Client) CreateUpdatePullRequest(ctx context.Context, branchName, commitMessage, prTitle, prBody, baseBranch string, files []string) (*github.PullRequest, error) {
+	// ブランチを作成
+	err := c.CreateBranch(ctx, branchName, baseBranch)
+	if err != nil {
+		return nil, fmt.Errorf("error creating branch: %v", err)
+	}
+
+	// 変更をコミット
+	err = c.CommitChanges(ctx, branchName, commitMessage, files)
+	if err != nil {
+		return nil, fmt.Errorf("error committing changes: %v", err)
+	}
+
+	// プルリクエストを作成または更新
+	pr, err := c.CreatePullRequest(ctx, prTitle, prBody, branchName, baseBranch)
+	if err != nil {
+		return nil, fmt.Errorf("error creating pull request: %v", err)
+	}
+
+	return pr, nil
+}
