@@ -1,6 +1,10 @@
 # unleash-checker-ai
 
-This tool identifies unused feature flags by referencing the Unleash API, extracts the relevant code sections, and uses LLM to correct the code.
+This tool identifies unused unleash flags by referencing the Unleash API, extracts the relevant code sections, and uses LLM to correct the code.
+
+It is expected to use in the GitHub Action. The action generates pull requests (see an example below).
+
+<img width="917" alt="image" src="https://github.com/user-attachments/assets/1e294c7f-2dc6-4e4c-9aeb-64df2c6a384f">
 
 It also targets potentially stale flags based on their lifetime and modifies the code accordingly.
 
