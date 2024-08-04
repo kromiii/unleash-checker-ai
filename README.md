@@ -49,10 +49,6 @@ jobs:
 
 You can narrow down the execution folder with `target_path`. By default, all files are targeted, but it is recommended to specify it to exclude third-party libraries, etc.
 
-Here is an example of the generated PR
-
-https://github.com/kromiii/unleash-checker-ai/pull/13
-
 If you are using GHES, please add `GITHUB_BASE_URL` to the Actions parameters.
 
 ```yaml
