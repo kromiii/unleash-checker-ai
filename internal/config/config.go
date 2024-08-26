@@ -80,5 +80,8 @@ func parseLifetime(lifetime string) (int, error) {
 	if lifetime == "permanent" {
 			return -1, nil
 	}
+	if lifetime == "" {
+		return 30, nil // default to 30 days
+	}
 	return strconv.Atoi(lifetime)
 }
