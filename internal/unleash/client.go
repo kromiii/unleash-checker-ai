@@ -86,7 +86,7 @@ func getExpectedLifetime(flagType string) time.Duration {
 		return 40 * 24 * time.Hour // 40日
 	case "operational":
 		return 7 * 24 * time.Hour // 7日
-	case "killSwitch", "permission":
+	case "kill-switch", "permission":
 		return time.Duration(math.MaxInt64) // 実質的に永続
 	default:
 		return 30 * 24 * time.Hour // デフォルトは30日

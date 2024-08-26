@@ -22,7 +22,7 @@ func TestGetStaleFlags(t *testing.T) {
 				{Name: "flag1", Type: "release", CreatedAt: time.Now().Add(-41 * 24 * time.Hour), Enabled: true, Stale: false},
 				{Name: "flag2", Type: "experiment", CreatedAt: time.Now().Add(-30 * 24 * time.Hour), Enabled: true, Stale: false},
 				{Name: "flag3", Type: "operational", CreatedAt: time.Now().Add(-8 * 24 * time.Hour), Enabled: true, Stale: true},
-				{Name: "flag4", Type: "killSwitch", CreatedAt: time.Now().Add(-366 * 24 * time.Hour), Enabled: true, Stale: false},
+				{Name: "flag4", Type: "kill-switch", CreatedAt: time.Now().Add(-366 * 24 * time.Hour), Enabled: true, Stale: false},
 			},
 		}
 		if err := json.NewEncoder(w).Encode(response); err != nil {
@@ -74,7 +74,7 @@ func TestGetExpectedLifetime(t *testing.T) {
 		{"release", "release", 40 * 24 * time.Hour},
 		{"experiment", "experiment", 40 * 24 * time.Hour},
 		{"operational", "operational", 7 * 24 * time.Hour},
-		{"killSwitch", "killSwitch", time.Duration(math.MaxInt64)},
+		{"killSwitch", "kill-switch", time.Duration(math.MaxInt64)},
 		{"permission", "permission", time.Duration(math.MaxInt64)},
 		{"default", "unknown", 30 * 24 * time.Hour},
 	}
