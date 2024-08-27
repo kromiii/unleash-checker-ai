@@ -24,8 +24,8 @@ func NewClient(token, owner, repo, baseURL string) *Client {
 	tc := oauth2.NewClient(ctx, ts)
 	client := github.NewClient(tc)
 
-	// GHES のエンドポイントを設定
-	if baseURL != "" {
+	// If it's not a GitHub URL, set the endpoint for GitHub Enterprise Server (GHES)
+	if baseURL != "https://github.com" {
 		baseEndpoint, _ := url.Parse(baseURL + "/api/v3/")
 		uploadEndpoint, _ := url.Parse(baseURL + "/api/uploads/")
 		client.BaseURL = baseEndpoint
