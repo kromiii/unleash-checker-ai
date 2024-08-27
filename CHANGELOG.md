@@ -1,5 +1,8 @@
 # Changelog
 
+## [v0.1.17](https://github.com/kromiii/unleash-checker-ai/compare/v0.1.16...v0.1.17) - 2024-08-27
+- Fix issue 37 by @kromiii in https://github.com/kromiii/unleash-checker-ai/pull/39
+
 ## [v0.1.16](https://github.com/kromiii/unleash-checker-ai/compare/v0.1.15...v0.1.16) - 2024-08-26
 - correct flag type name by @kromiii in https://github.com/kromiii/unleash-checker-ai/pull/38
 
