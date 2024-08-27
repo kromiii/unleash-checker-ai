@@ -96,15 +96,18 @@ runs:
         OPERATIONAL_FLAG_LIFETIME: ${{ inputs.operational_flag_lifetime }}
         PERMISSION_FLAG_LIFETIME: ${{ inputs.permission_flag_lifetime }}
       run: |
-        output=$(./unleash-checker-ai ${{ inputs.target_path }})
+        set +e
+        output=$(./unleash-checker-ai ${{ inputs.target_path }} 2>&1)
+        exit_code=$?
+        set -e
         echo "checker_output<<EOF" >> $GITHUB_OUTPUT
         echo "$output" >> $GITHUB_OUTPUT
         echo "EOF" >> $GITHUB_OUTPUT
         rm unleash-checker-ai
-        if echo "$output" | grep -q "Error"; then
-          echo "Error detected in unleash-checker-ai output"
           echo "$output"
-          exit 1
+        if [ $exit_code -ne 0 ]; then
+          echo "Error: unleash-checker-ai exited with code $exit_code"
+          exit $exit_code
         fi
 
 branding:

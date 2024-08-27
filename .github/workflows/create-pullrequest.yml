@@ -1,7 +1,7 @@
 name: Unleash Checker AI
 
 on:
-  workflow_dispatch:  
+  workflow_dispatch:
 
 jobs:
   unleash_checker:
@@ -15,4 +15,4 @@ jobs:
           unleash_project_id: ${{ secrets.UNLEASH_PROJECT_ID }}
           openai_api_key: ${{ secrets.OPENAI_API_KEY }}
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          target_path: 'example'
+          target_path: "example"
