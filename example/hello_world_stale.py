@@ -1,4 +1,5 @@
 import unleash_client
+import unleash_client
 
 client = unleash_client.initialize_client(
     url="https://your-unleash-instance.com/api/",
@@ -6,7 +7,7 @@ client = unleash_client.initialize_client(
     app_name="your-app-name"
 )
 
-if client.is_enabled("unleash-ai-example-stale"):
-    print("hello world")
+# The feature flag "unleash-ai-example-stale" was always enabled
+print("hello world")
 
 client.close()
