@@ -6,12 +6,15 @@ import (
 	"math"
 	"net/http"
 	"time"
+
+	"github.com/kromiii/unleash-checker-ai/internal/config"
 )
 
 type UnleashClient struct {
-	BaseURL  string
-	APIToken string
+	BaseURL   string
+	APIToken  string
 	ProjectID string
+	Config    *config.Config
 }
 
 type FeatureFlag struct {
@@ -26,11 +29,12 @@ type FeatureFlagsResponse struct {
 	Features []FeatureFlag `json:"features"`
 }
 
-func NewClient(baseURL, apiToken string, projectID string) *UnleashClient {
+func NewClient(baseURL, apiToken string, projectID string, cfg *config.Config) *UnleashClient {
 	return &UnleashClient{
-		BaseURL:  baseURL,
-		APIToken: apiToken,
+		BaseURL:   baseURL,
+		APIToken:  apiToken,
 		ProjectID: projectID,
+		Config:    cfg,
 	}
 }
 
@@ -56,17 +60,17 @@ func (c *UnleashClient) GetStaleFlags(onlyStaleFlags bool) ([]string, error) {
 		return nil, err
 	}
 
-	return getStaleFlags(featureFlagsResp.Features, onlyStaleFlags), nil
+	return c.getStaleFlags(featureFlagsResp.Features, onlyStaleFlags), nil
 }
 
-func getStaleFlags(flags []FeatureFlag, onlyStaleFlags bool) []string {
+func (c *UnleashClient) getStaleFlags(flags []FeatureFlag, onlyStaleFlags bool) []string {
 	var staleFlags []string
 	now := time.Now()
 
 	for _, flag := range flags {
-		lifetime := getExpectedLifetime(flag.Type)
+		lifetime := c.getExpectedLifetime(flag.Type)
 		if onlyStaleFlags {
-			if flag.Stale{
+			if flag.Stale {
 				staleFlags = append(staleFlags, flag.Name)
 			}
 		} else {
@@ -80,14 +84,30 @@ func getStaleFlags(flags []FeatureFlag, onlyStaleFlags bool) []string {
 	return staleFlags
 }
 
-func getExpectedLifetime(flagType string) time.Duration {
+func (c *UnleashClient) getExpectedLifetime(flagType string) time.Duration {
 	switch flagType {
-	case "release", "experiment":
-		return 40 * 24 * time.Hour // 40日
+	case "release":
+		if c.Config.ReleaseFlagLifetime == -1 {
+			return time.Duration(math.MaxInt64)
+		}
+		return time.Duration(c.Config.ReleaseFlagLifetime) * 24 * time.Hour
+	case "experiment":
+		if c.Config.ExperimentFlagLifetime == -1 {
+			return time.Duration(math.MaxInt64)
+		}
+		return time.Duration(c.Config.ExperimentFlagLifetime) * 24 * time.Hour
 	case "operational":
-		return 7 * 24 * time.Hour // 7日
-	case "kill-switch", "permission":
-		return time.Duration(math.MaxInt64) // 実質的に永続
+		if c.Config.OperationalFlagLifetime == -1 {
+			return time.Duration(math.MaxInt64)
+		}
+		return time.Duration(c.Config.OperationalFlagLifetime) * 24 * time.Hour
+	case "permission":
+		if c.Config.PermisionFlagLifetime == -1 {
+			return time.Duration(math.MaxInt64)
+		}
+		return time.Duration(c.Config.PermisionFlagLifetime) * 24 * time.Hour
+	case "kill-switch":
+		return time.Duration(math.MaxInt64) // kill-switchは期限切れにならない
 	default:
 		return 30 * 24 * time.Hour // デフォルトは30日
 	}

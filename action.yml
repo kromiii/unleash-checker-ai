@@ -25,6 +25,22 @@ inputs:
     description: 'GitHub base URL'
     required: false
     default: 'https://github.com'
+  release_flag_lifetime:
+    description: 'Flag lifetime for release flags (days)'
+    required: false
+    default: '40'
+  experiment_flag_lifetime:
+    description: 'Flag lifetime for experimental flags (days)'
+    required: false
+    default: '40'
+  operational_flag_lifetime:
+    description: 'Flag lifetime for operational flags (days)'
+    required: false
+    default: '7'
+  permission_flag_lifetime:
+    description: 'Flag lifetime for permission flags (days)'
+    required: false
+    default: 'permanent'
 outputs:
   checker_output:
     description: 'Output from unleash-checker-ai'
@@ -75,6 +91,10 @@ runs:
         GITHUB_TOKEN: ${{ inputs.github_token }}
         GITHUB_OWNER: ${{ github.repository_owner }}
         GITHUB_REPO: ${{ github.event.repository.name }}
+        RELEASE_FLAG_LIFETIME: ${{ inputs.release_flag_lifetime }}
+        EXPERIMENT_FLAG_LIFETIME: ${{ inputs.experiment_flag_lifetime }}
+        OPERATIONAL_FLAG_LIFETIME: ${{ inputs.operational_flag_lifetime }}
+        PERMISSION_FLAG_LIFETIME: ${{ inputs.permission_flag_lifetime }}
       run: |
         output=$(./unleash-checker-ai ${{ inputs.target_path }})
         echo "checker_output<<EOF" >> $GITHUB_OUTPUT

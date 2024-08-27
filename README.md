@@ -61,3 +61,24 @@ If you are using GHES, please add `GITHUB_BASE_URL` to the Actions parameters.
           target_path: 'app'
           github_base_url: 'https://git.example.com'
 ```
+
+If you want to customize the flag lifetime, you can add environment variables as follows:
+
+```yaml
+        with:
+          unleash_api_endpoint: ${{ secrets.UNLEASH_API_ENDPOINT }}
+          unleash_api_token: ${{ secrets.UNLEASH_API_TOKEN }}
+          unleash_project_id: ${{ secrets.UNLEASH_PROJECT_ID }}
+          openai_api_key: ${{ secrets.OPENAI_API_KEY }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          target_path: 'app'
+          github_base_url: 'https://git.example.com'
+          release_flag_lifetime: 30
+          experiment_flag_lifetime: 20
+          permission_flag_lifetime: 10
+          operational_flag_lifetime: 'permanent'
+```
+
+When not set, default lifetime value is used for each flag type.
+
+ref: https://docs.getunleash.io/reference/feature-toggle-types

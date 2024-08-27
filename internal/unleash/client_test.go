@@ -7,6 +7,8 @@ import (
 	"net/http/httptest"
 	"testing"
 	"time"
+
+	"github.com/kromiii/unleash-checker-ai/internal/config"
 )
 
 func TestGetStaleFlags(t *testing.T) {
@@ -32,8 +34,16 @@ func TestGetStaleFlags(t *testing.T) {
 	}))
 	defer server.Close()
 
+	// テスト用の設定
+	cfg := &config.Config{
+		ReleaseFlagLifetime:     40,
+		ExperimentFlagLifetime:  40,
+		OperationalFlagLifetime: 7,
+		PermisionFlagLifetime:   -1,
+	}
+
 	// クライアントの作成
-	client := NewClient(server.URL, "test-token", "test-project")
+	client := NewClient(server.URL, "test-token", "test-project", cfg)
 
 	// テストケース
 	tests := []struct {
@@ -66,6 +76,14 @@ func TestGetStaleFlags(t *testing.T) {
 }
 
 func TestGetExpectedLifetime(t *testing.T) {
+	cfg := &config.Config{
+		ReleaseFlagLifetime:     40,
+		ExperimentFlagLifetime:  40,
+		OperationalFlagLifetime: 7,
+		PermisionFlagLifetime:   -1,
+	}
+	client := NewClient("", "", "", cfg)
+
 	tests := []struct {
 		name     string
 		flagType string
@@ -81,7 +99,7 @@ func TestGetExpectedLifetime(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := getExpectedLifetime(tt.flagType); got != tt.want {
+			if got := client.getExpectedLifetime(tt.flagType); got != tt.want {
 				t.Errorf("Expected %v for %s, got %v", tt.want, tt.flagType, got)
 			}
 		})

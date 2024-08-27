@@ -29,7 +29,7 @@ func main() {
 	onlyStaleFlag := flag.Bool("only-stale", false, "Ignore potentially stale flags")
 	flag.Parse()
 
-	client := unleash.NewClient(cfg.UnleashAPIEndpoint, cfg.UnleashAPIToken, cfg.ProjectID)
+	client := unleash.NewClient(cfg.UnleashAPIEndpoint, cfg.UnleashAPIToken, cfg.ProjectID, cfg)
 	onlyStaleFlags := *onlyStaleFlag
 	staleFlags, err := client.GetStaleFlags(onlyStaleFlags)
 	if err != nil {
