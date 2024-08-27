@@ -19,7 +19,7 @@ Unleash Checker AI is intended to be used with GitHub Actions.
 Please set the following environment variables in Actions Secret:
 
 * UNLEASH_API_ENDPOINT: Unleash endpoint (https://app.unleash-hosted.com/api)
-* UNLEASH_API_TOKEN: Unleash API token
+* UNLEASH_API_TOKEN: Unleash API token (Require admin grant)
 * UNLEASH_PROJECT_ID: Project ID ("default")
 * OPENAI_API_KEY: OpenAI API key
 
@@ -36,7 +36,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - uses: kromiii/unleash-checker-ai@v0.1.17
+      - uses: kromiii/unleash-checker-ai@v0.1.19
         with:
           unleash_api_endpoint: ${{ secrets.UNLEASH_API_ENDPOINT }}
           unleash_api_token: ${{ secrets.UNLEASH_API_TOKEN }}
