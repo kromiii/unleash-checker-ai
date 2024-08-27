@@ -1,5 +1,7 @@
 # Changelog
 
+## [v0.1.20](https://github.com/kromiii/unleash-checker-ai/compare/v0.1.19...v0.1.20) - 2024-08-27
+
 ## [v0.1.19](https://github.com/kromiii/unleash-checker-ai/compare/v0.1.18...v0.1.19) - 2024-08-27
 
 ## [v0.1.18](https://github.com/kromiii/unleash-checker-ai/compare/v0.1.17...v0.1.18) - 2024-08-27
