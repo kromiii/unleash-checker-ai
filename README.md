@@ -72,7 +72,6 @@ If you want to customize the flag lifetime, you can add environment variables as
           openai_api_key: ${{ secrets.OPENAI_API_KEY }}
           github_token: ${{ secrets.GITHUB_TOKEN }}
           target_path: 'app'
-          github_base_url: 'https://git.example.com'
           release_flag_lifetime: 30
           experiment_flag_lifetime: 20
           permission_flag_lifetime: 10
