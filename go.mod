@@ -7,7 +7,7 @@ toolchain go1.24.1
 require (
 	github.com/google/go-github/v38 v38.1.0
 	github.com/stretchr/testify v1.9.0
-	golang.org/x/oauth2 v0.21.0
+	golang.org/x/oauth2 v0.27.0
 )
 
 require (
